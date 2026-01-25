@@ -27,7 +27,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const LoginForm = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { login } = useAuth();
+    const { login, refetchUser } = useAuth();
     const router = useRouter();
 
     const form = useForm<LoginFormData>({
@@ -49,7 +49,8 @@ const LoginForm = () => {
         try {
             await login(data.email, data.password);
             toast.success("Login successful!");
-            router.push("/dashboard");
+            router.push("/profile");
+            refetchUser();
         } catch (err: any) {
             toast.error(err?.response?.data?.message || err?.message || "An unexpected error occurred.");
             setError(err?.response?.data?.message || "An unexpected error occurred. Please try again.");
