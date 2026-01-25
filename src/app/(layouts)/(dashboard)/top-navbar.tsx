@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
-import { LogOutIcon } from "lucide-react";
+import { LogOutIcon, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 const TopNavBar = () => {
@@ -25,9 +25,9 @@ const TopNavBar = () => {
         <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
             <div className="flex items-center">
                 <button className="md:hidden text-gray-500 focus:outline-none">
-                    <i className="fas fa-bars"></i>
+                    <Menu />
                 </button>
-                <h1 className="text-xl font-semibold text-gray-800 ml-4">Dashboard</h1>
+                {/* <h1 className="text-xl font-semibold text-gray-800 ml-4">Dashboard</h1> */}
             </div>
             <div className="flex items-center space-x-4">
                 <div className="relative">

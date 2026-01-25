@@ -33,8 +33,8 @@ const LoginForm = () => {
     const form = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            email: "robin.promoteur@gmail.com",
-            password: "123456",
+            email: "",
+            password: "",
         },
     });
 
@@ -97,18 +97,6 @@ const LoginForm = () => {
                             </FormItem>
                         )}
                     />
-
-                    {/* <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem>
-                                <Label htmlFor="password">Password</Label>
-                                <Input {...field} id="password" placeholder="Enter your password" type="password" disabled={isLoading} />
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    /> */}
 
                     <Button type="submit" className="w-full" disabled={isLoading}>
                         {isLoading ? "Signing in..." : "Sign In"}

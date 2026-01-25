@@ -1,37 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Define paths that don't need auth
+// Paths that are public and allowed even without auth
 const PUBLIC_PATHS = ["/login", "/register", "/api/public"];
 
 export function middleware(req: NextRequest) {
-    // Check cookie for token
     const token = req.cookies.get("token")?.value;
-
     const { pathname } = req.nextUrl;
 
-    console.log("Pathname", pathname);
-
-    if ((token && pathname.startsWith("/login")) || pathname.startsWith("/register")) {
-        const loginUrl = new URL("/", req.url);
-        return NextResponse.redirect(loginUrl);
+    // 1️⃣ If user has token and tries to access login or register, redirect to home
+    if (token && (pathname === "/login" || pathname === "/register")) {
+        return NextResponse.redirect(new URL("/profile", req.url));
     }
 
-    if (!token) {
-        // Redirect to login if no token
-        const loginUrl = new URL("/login", req.url);
-        return NextResponse.redirect(loginUrl);
-    }
-
-    // Allow public paths
+    // 2️⃣ Allow public paths without token
     if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
         return NextResponse.next();
     }
 
-    // If token exists, continue
+    // 3️⃣ If no token and trying to access protected route, redirect to login
+    if (!token) {
+        return NextResponse.redirect(new URL("/login", req.url));
+    }
+
+    // 4️⃣ If token exists and route is not public, allow
     return NextResponse.next();
 }
 
-// Apply middleware only for certain routes
+// Apply middleware only for these routes
 export const config = {
-    matcher: ["/dashboard/:path*", "/profile/:path*"], // protect these routes
+    matcher: ["/dashboard/:path*", "/profile/:path*", "/login", "/register"], // include login/register to handle token redirect
 };
