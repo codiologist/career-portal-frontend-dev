@@ -20,7 +20,7 @@ export default function GoogleBtn() {
                     .then((r) => r.json())
                     .then((data) => {
                         console.log(data);
-                        router.push("/");
+                        router.push("/profile");
                     });
             }}
             onError={() => console.log("Login Failed")}

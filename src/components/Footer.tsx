@@ -2,12 +2,13 @@
 // import mail_icon from "/public/icons//mail-icon.svg";
 // import call_icon from "/public/icons/call-icon.svg";
 // import facebook_icon from "/public/icons/facebook.png";
+
 // import linkedin_icon from "/public/icons/linkedin.png";
 const Footer = () => {
-    return (
-        // <footer className="w-full bg-white px-10 pt-12 pb-6">
-        <footer className="w-full bg-white">
-            {/* <div className="container-xl py-10 pb-10 lg:py-20 lg:pb-10">
+  return (
+    // <footer className="w-full bg-white px-10 pt-12 pb-6">
+    <footer className="w-full bg-white">
+      {/* <div className="container-xl py-10 pb-10 lg:py-20 lg:pb-10">
                 <div className="w-full items-start justify-between gap-4 lg:flex">
                     <div className="mt-1 mb-4 w-full lg:mb-0 lg:w-7/12 2xl:w-8/12">
                         <p className="w-full text-lg font-medium text-black lg:max-w-8/12 2xl:max-w-8/12">
@@ -57,8 +58,8 @@ const Footer = () => {
                 </div>
                 <p className="text-gray text-center">© {new Date().getFullYear()} Algorify Labs Ltd. – All Rights Reserved.</p>
             </div> */}
-        </footer>
-    );
+    </footer>
+  );
 };
 
 export default Footer;

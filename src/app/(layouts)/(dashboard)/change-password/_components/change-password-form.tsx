@@ -33,7 +33,7 @@ const ChangePasswordForm = ({ token }: { token: object }) => {
         try {
             setIsLoading(true);
             await api.post("/auth/reset-password", {
-                password: form.getValues().password,
+                newPassword: form.getValues().password,
                 token: token, // token is a string | undefined
             });
             toast.success("Password updated successfully!");
