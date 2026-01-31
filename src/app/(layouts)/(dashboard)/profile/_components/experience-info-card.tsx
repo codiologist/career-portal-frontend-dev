@@ -15,7 +15,7 @@ const ExperienceInfoCard = () => {
         <ul>
           <li className="relative flex items-baseline gap-5 pb-5">
             <div className="before:bg-blue-water-600/40 before:absolute before:top-2 before:left-1.75 before:h-full before:w-0.5">
-              <FaCircle className="size-4 text-blue-600" />
+              <FaCircle className="size-4 text-blue-700" />
             </div>
             {/* <div className="text-blue-water-600 relative top-0.5">
               <FaCircle className="size-4" />
@@ -34,14 +34,14 @@ const ExperienceInfoCard = () => {
 
               <ul className="mt-1.5 space-y-2.5">
                 <li className="flex items-start gap-3 xl:items-center">
-                  <Toolbox
+                  <Building2
                     size={16}
                     className="text-blue-water-700/60 size-5"
                   />
                   <p className="font-medium">Analyzen Bangladesh Ltd.</p>
                 </li>
                 <li className="flex items-start gap-3 xl:items-center">
-                  <Building2
+                  <Toolbox
                     size={16}
                     className="text-blue-water-700/60 size-5"
                   />

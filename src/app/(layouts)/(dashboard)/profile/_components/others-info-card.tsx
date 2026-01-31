@@ -67,6 +67,16 @@ const OtherInfoCard = () => {
 
           <li className="flex gap-2">
             <div className="text-primary rounded-[5px] bg-blue-100/50 p-3">
+              <IdCardIcon size={26} />
+            </div>
+            <div>
+              <p className="text-primary mb-0 font-semibold">NID Number</p>
+              <p className="font-bold">1234567890</p>
+            </div>
+          </li>
+
+          <li className="flex gap-2">
+            <div className="text-primary rounded-[5px] bg-blue-100/50 p-3">
               <MdOutlineBloodtype size={26} />
             </div>
             <div>

@@ -1,11 +1,14 @@
 import Image from "next/image";
 import CareerObjectivCard from "./_components/career-objective-card";
+import CertificationDocumentsCard from "./_components/cerficates-documents-card";
 import ContactInfoCard from "./_components/contact-info-card";
 import EducationalInfoCard from "./_components/educational-info-card";
 import ExperienceInfoCard from "./_components/experience-info-card";
 import IntroCard from "./_components/intro-card";
+import OtherDocumentsCard from "./_components/other-documets-card";
 import OtherInfoCard from "./_components/others-info-card";
 import PersonalInfoCard from "./_components/personal-info-card";
+import SkillsInfoCard from "./_components/skills-info-card";
 import bg from "/public/profile-details-cover-photo.jpg";
 
 const ProfilePage = () => {
@@ -31,6 +34,9 @@ const ProfilePage = () => {
               <CareerObjectivCard />
               <ExperienceInfoCard />
               <EducationalInfoCard />
+              <SkillsInfoCard />
+              <CertificationDocumentsCard />
+              <OtherDocumentsCard />
             </div>
             <div className="w-full lg:w-4/12">
               <ContactInfoCard />
