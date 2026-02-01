@@ -62,7 +62,7 @@ const SidebarNavItems = () => {
                       : "text-primary hover:bg-primary hover:text-white"
                   )}
                 >
-                  {item.icon ? <item.icon width={18} height={18} className="mr-3" /> : null}
+                  {item.icon ? <item.icon className="mr-3" /> : null}
                   {item.menu_name}
                   <div
                     className={`flex h-6 w-6 items-center justify-center transition-all duration-400 ease-in-out ${
@@ -104,7 +104,7 @@ const SidebarNavItems = () => {
                           )}
                         >
                           {subItem.icon ? (
-                            <subItem.icon width={18} height={18} className="mr-3" />
+                            <subItem.icon className="mr-3" />
                           ) : null}
                           <span>{subItem.menu_name}</span>
                         </Link>
@@ -124,7 +124,7 @@ const SidebarNavItems = () => {
                     : "text-primary hover:bg-primary hover:text-white",
                 )}
               >
-                <item.icon width={18} height={18} className="mr-3" />
+{item.icon ? <item.icon className="mr-3" /> : null}
                 {item.menu_name}
               </Link>
             )}
