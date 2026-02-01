@@ -9,12 +9,13 @@ import { toast } from "react-toastify";
 interface AuthContextType {
   user: TGetMyProfileResponse | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, captchaToken?: string) => Promise<void>;
   signup: (
     fullName: string,
     email: string,
     phone: string,
     password: string,
+    captchaToken?: string,
   ) => Promise<any>;
   refetchUser: () => Promise<void>;
   logout: () => void;
@@ -47,27 +48,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   // Login function
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, captchaToken?: string) => {
     const res = await api.post(
       "/auth/login",
-      { email, password },
+      { email, password, captchaToken },
       { withCredentials: true },
     );
 
     return res.data;
   };
 
-  // Login function
+  // Signup function
   const signup = async (
     fullName: string,
     email: string,
     phone: string,
     password: string,
+    captchaToken?: string,
   ) => {
     try {
       const res = await api.post(
         "/auth/register",
-        { fullName, email, phone, password },
+        { fullName, email, phone, password, captchaToken },
         { withCredentials: true },
       );
       console.log(res);
