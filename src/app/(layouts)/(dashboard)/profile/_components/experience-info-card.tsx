@@ -6,7 +6,7 @@ import {
   Toolbox,
 } from "lucide-react";
 import { FaCircle } from "react-icons/fa";
-import ProfileContentCard from "./profile-content-card";
+import ProfileContentCard from "../../_components/profile-content-card";
 
 const ExperienceInfoCard = () => {
   return (
@@ -14,10 +14,10 @@ const ExperienceInfoCard = () => {
       <ProfileContentCard title="Work & Experience">
         <ul>
           <li className="relative flex items-baseline gap-5 pb-5">
-            <div className="before:bg-blue-water-600/40 before:absolute before:top-2 before:left-1.75 before:h-full before:w-0.5">
-              <FaCircle className="size-4 text-blue-700" />
+            <div className="before:bg-blue-water-700/40 before:absolute before:top-2 before:left-1.75 before:h-full before:w-0.5">
+              <FaCircle className="text-blue-water-700 size-4" />
             </div>
-            {/* <div className="text-blue-water-600 relative top-0.5">
+            {/* <div className="text-blue-water-700 relative top-0.5">
               <FaCircle className="size-4" />
             </div> */}
             <div>
@@ -82,10 +82,10 @@ const ExperienceInfoCard = () => {
             </div>
           </li>
           <li className="relative flex items-baseline gap-5 pb-5">
-            {/* <div className="before:bg-blue-water-600/40 before:absolute before:left-1.75 before:h-full before:w-0.5">
-              <FaCircle className="size-4 text-blue-600" />
+            {/* <div className="before:bg-blue-water-700/40 before:absolute before:top-2 before:left-1.75 before:h-full before:w-0.5">
+              <FaCircle className="text-blue-water-700 size-4" />
             </div> */}
-            <div className="text-blue-water-600 relative top-0.5">
+            <div className="text-blue-water-700 relative top-0.5">
               <FaCircle className="size-4" />
             </div>
             <div>

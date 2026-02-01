@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { MdOutlineBloodtype } from "react-icons/md";
-import ProfileContentCard from "./profile-content-card";
+import ProfileContentCard from "../../_components/profile-content-card";
 
 const OtherInfoCard = () => {
   return (

@@ -4,10 +4,12 @@ import CareerObjectivCard from "./_components/career-objective-card";
 import ContactInfoCard from "./_components/contact-info-card";
 import EducationalInfoCard from "./_components/educational-info-card";
 import ExperienceInfoCard from "./_components/experience-info-card";
+import { InterestsCard } from "./_components/intertest-card";
 import IntroCard from "./_components/intro-card";
 import OtherDocumentsCard from "./_components/other-documets-card";
 import OtherInfoCard from "./_components/others-info-card";
 import PersonalInfoCard from "./_components/personal-info-card";
+import ReferenceInfo from "./_components/reference-info-card";
 import SkillsInfoCard from "./_components/skills-info-card";
 import bg from "/public/profile-details-cover-photo.jpg";
 
@@ -29,19 +31,21 @@ const ProfilePage = () => {
           {/* Candidate Intro Card */}
           <IntroCard />
 
-          <div className="flex flex-col gap-0 lg:flex-row xl:gap-14">
-            <div className="w-full lg:w-8/12">
+          <div className="flex flex-col gap-0 xl:flex-row xl:gap-14">
+            <div className="w-full xl:w-8/12">
               <CareerObjectivCard />
               <ExperienceInfoCard />
               <EducationalInfoCard />
               <SkillsInfoCard />
               <AchievementCard />
+              <ReferenceInfo />
               <OtherDocumentsCard />
             </div>
-            <div className="w-full lg:w-4/12">
+            <div className="w-full xl:w-4/12">
               <ContactInfoCard />
               <PersonalInfoCard />
               <OtherInfoCard />
+              <InterestsCard />
             </div>
           </div>
         </div>

@@ -1,13 +1,11 @@
 import ProfileContentCard from "../../_components/profile-content-card";
 
-const AchievementCard = () => {
+export const InterestsCard = () => {
   return (
     <section className="mt-10">
-      <ProfileContentCard title="Award &amp; Achievements">
-        <p></p>
+      <ProfileContentCard title="Interest">
+        <div></div>
       </ProfileContentCard>
     </section>
   );
 };
-
-export default AchievementCard;

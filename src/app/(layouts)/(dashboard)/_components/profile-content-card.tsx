@@ -15,7 +15,7 @@ const ProfileContentCard = ({
   return (
     <Card
       className={cn(
-        "w-full rounded-sm border-0 p-6 pt-4 shadow-[0_20px_55px_rgba(15_23_42/0.1)]",
+        "w-full rounded-4xl border-0 p-6 pt-4 shadow-[0_20px_55px_rgba(15_23_42/0.1)]",
         className,
       )}
     >

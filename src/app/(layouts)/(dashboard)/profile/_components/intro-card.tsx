@@ -7,14 +7,13 @@ import { DownloadIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaFacebook, FaLinkedin } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import insta_icon from "/public/instagram-icon.svg";
+import { FaInstagram, FaXTwitter } from "react-icons/fa6";
 
 const IntroCard = () => {
   const { isAuthenticated, user } = useAuth();
   return (
     <section>
-      <Card className="border-primary rounded-sm border-0 border-t-5 pt-4 pb-3 shadow-[0_20px_55px_rgba(15_23_42/0.1)]">
+      <Card className="border-primary rounded-4xl border-0 border-t-5 pt-4 pb-3 shadow-[0_20px_55px_rgba(15_23_42/0.1)]">
         <CardContent className="relative">
           <div className="absolute -top-20 left-[30%] mb-10 rounded-sm bg-white p-2 xl:left-5">
             <Image
@@ -36,7 +35,7 @@ const IntroCard = () => {
                 </h2>
               </div>
               <div className="mt-4 w-full text-center xl:mt-0 xl:w-3/12 xl:text-right">
-                <Button className="rounded-xs text-lg font-semibold">
+                <Button className="bg-blue-water-700 rounded-xs text-lg font-semibold">
                   <DownloadIcon className="mr-1 size-6" />
                   Download Resume
                 </Button>
@@ -48,16 +47,7 @@ const IntroCard = () => {
                         target="_blank"
                         className="hover:text-primary mr-4"
                       >
-                        <FaFacebook size={29} className="text-[#0B66FF]" />
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        href=""
-                        target="_blank"
-                        className="hover:text-primary mr-4 text-gray-600"
-                      >
-                        <FaLinkedin size={28} className="text-[#1666C2]" />
+                        <FaFacebook size={29} className="text-blue-water-700" />
                       </Link>
                     </li>
                     <li>
@@ -66,10 +56,18 @@ const IntroCard = () => {
                         target="_blank"
                         className="hover:text-primary mr-4"
                       >
-                        <Image
-                          src={insta_icon}
-                          className="size-6.5 h-auto"
-                          alt="Instagram"
+                        <FaLinkedin size={30} className="text-blue-water-700" />
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href=""
+                        target="_blank"
+                        className="hover:text-primary mr-4"
+                      >
+                        <FaInstagram
+                          size={28}
+                          className="text-blue-water-700"
                         />
                       </Link>
                     </li>
@@ -79,7 +77,7 @@ const IntroCard = () => {
                         target="_blank"
                         className="hover:text-primary mr-4"
                       >
-                        <FaXTwitter size={28} className="text-black" />
+                        <FaXTwitter size={28} className="text-blue-water-700" />
                       </Link>
                     </li>
                   </ul>

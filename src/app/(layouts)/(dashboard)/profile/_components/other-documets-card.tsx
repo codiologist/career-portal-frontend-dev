@@ -1,4 +1,4 @@
-import ProfileContentCard from "./profile-content-card";
+import ProfileContentCard from "../../_components/profile-content-card";
 
 const OtherDocumentsCard = () => {
   return (

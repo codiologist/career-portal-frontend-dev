@@ -1,6 +1,6 @@
 import { Mail, Phone, PhoneCallIcon } from "lucide-react";
 import { BsSignpost2 } from "react-icons/bs";
-import ProfileContentCard from "./profile-content-card";
+import ProfileContentCard from "../../_components/profile-content-card";
 
 const ContactInfoCard = () => {
   return (
