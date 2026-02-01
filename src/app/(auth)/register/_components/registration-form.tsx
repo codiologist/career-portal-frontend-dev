@@ -66,7 +66,8 @@ const RegistrationForm = () => {
         );
         setLoading(false);
       }
-    } catch (error: any) {
+    } catch {
+      // Error is handled in AuthContext
     } finally {
       setLoading(false);
     }

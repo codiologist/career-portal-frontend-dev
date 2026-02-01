@@ -42,7 +42,7 @@ const LoginPage = () => {
 
             <div className="pt-2 pb-12 text-center">
               <p className="text-sm whitespace-nowrap">
-                Don't have an account? Please{" "}
+                Don&apos;t have an account? Please{" "}
                 <Link href="/register" className="text-primary font-semibold">
                   Register.
                 </Link>
@@ -54,9 +54,12 @@ const LoginPage = () => {
           </p>
         </div>
         <div className="pointer-events-none relative hidden bg-black shadow-2xl select-none md:block md:w-1/2 lg:w-2/3">
-          <img
+          <Image
             className="h-screen w-full object-cover opacity-80"
             src="/login-bg.jpg"
+            alt="Login background"
+            width={1920}
+            height={1080}
           />
         </div>
       </div>

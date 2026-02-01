@@ -42,8 +42,9 @@ const ForgotPasswordForm = () => {
       });
       console.log(res);
       toast.success("Password updated successfully!");
-    } catch (err: any) {
-      toast.error(err);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

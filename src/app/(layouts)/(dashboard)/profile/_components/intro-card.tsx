@@ -10,7 +10,7 @@ import { FaFacebook, FaLinkedin } from "react-icons/fa";
 import { FaInstagram, FaXTwitter } from "react-icons/fa6";
 
 const IntroCard = () => {
-  const { isAuthenticated, user } = useAuth();
+  useAuth();
   return (
     <section>
       <Card className="border-primary rounded-4xl border-0 border-t-5 pt-4 pb-3 shadow-[0_20px_55px_rgba(15_23_42/0.1)]">

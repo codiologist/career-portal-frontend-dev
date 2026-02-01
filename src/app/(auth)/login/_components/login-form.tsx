@@ -24,9 +24,17 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
+interface ErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+  message?: string;
+}
+
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { login, refetchUser } = useAuth();
   const router = useRouter();
 
@@ -38,28 +46,19 @@ const LoginForm = () => {
     },
   });
 
-  type LoginResponse = {
-    message?: string;
-    [key: string]: any;
-  };
-
   async function onSubmit(data: LoginFormData) {
     setIsLoading(true);
-    setError(null);
     try {
       await login(data.email, data.password);
       toast.success("Login successful!");
       router.push("/profile");
       refetchUser();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as ErrorResponse;
       toast.error(
-        err?.response?.data?.message ||
-          err?.message ||
+        error?.response?.data?.message ||
+          error?.message ||
           "An unexpected error occurred.",
-      );
-      setError(
-        err?.response?.data?.message ||
-          "An unexpected error occurred. Please try again.",
       );
     } finally {
       setIsLoading(false);

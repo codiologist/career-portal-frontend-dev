@@ -25,7 +25,7 @@ const ResetPassword = () => {
               </div>
 
               <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-                Don't reset your password? Return to{" "}
+                Don&apos;t reset your password? Return to{" "}
                 <Link
                   href="/login"
                   className="text-primary font-medium decoration-2 hover:underline"

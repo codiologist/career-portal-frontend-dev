@@ -55,7 +55,8 @@ const ResetPasswordForm = () => {
       if (res.status) {
         router.push("/login");
       }
-    } catch (err: any) {
+    } catch {
+      // Error handling can be added here if needed
     } finally {
       setIsLoading(false);
     }

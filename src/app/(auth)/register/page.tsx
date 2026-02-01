@@ -46,9 +46,12 @@ const RegistrationPage = () => {
           </p>
         </div>
         <div className="pointer-events-none hidden bg-black shadow-2xl select-none md:block md:w-1/2 lg:w-2/3">
-          <img
+          <Image
             className="h-screen w-full object-cover opacity-80"
             src="/register-bg.jpg"
+            alt="Registration background"
+            width={1920}
+            height={1080}
           />
         </div>
       </div>

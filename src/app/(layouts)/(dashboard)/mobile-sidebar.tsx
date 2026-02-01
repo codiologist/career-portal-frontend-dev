@@ -6,13 +6,11 @@ import SidebarNavItems from "./sidebar-nav-items";
 type MobileSidebarProps = {
   toggleSidebarMenu: () => void;
   isMenuOpen: boolean;
-  setIsMenuOpen: (isOpen: boolean) => void;
 };
 
 const MobileSidebar = ({
   toggleSidebarMenu,
   isMenuOpen,
-  setIsMenuOpen,
 }: MobileSidebarProps) => {
   return (
     <>

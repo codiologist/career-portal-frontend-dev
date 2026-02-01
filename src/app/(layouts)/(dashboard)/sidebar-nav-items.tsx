@@ -1,5 +1,5 @@
 "use client";
-import { sidebarNavigationItems } from "@/components/navigation/navigation-items";
+import { sidebarNavigationItems, SidebarNavigationItem, SidebarSubMenuItem } from "@/components/navigation/navigation-items";
 import { cn } from "@/lib/utils";
 import { ChevronDownCircle } from "lucide-react";
 import Link from "next/link";
@@ -12,10 +12,10 @@ const SidebarNavItems = () => {
   // Check if any submenu item is active for a given parent item
   const isSubMenuActive = useMemo(() => {
     const activeMap: Record<string, boolean> = {};
-    sidebarNavigationItems.forEach((item: any) => {
+    sidebarNavigationItems.forEach((item: SidebarNavigationItem) => {
       if (item.hasSubMenu && item.subMenuItems) {
         activeMap[item.menu_name] = item.subMenuItems.some(
-          (subItem: any) => pathname === subItem.href || pathname.startsWith(subItem.href + "/")
+          (subItem: SidebarSubMenuItem) => pathname === subItem.href || pathname.startsWith(subItem.href + "/")
         );
       }
     });
@@ -49,7 +49,7 @@ const SidebarNavItems = () => {
   return (
     <div className="flex grow flex-col overflow-y-auto px-4 py-4">
       <nav className="flex-1 space-y-2">
-        {sidebarNavigationItems.map((item: any) => (
+        {sidebarNavigationItems.map((item: SidebarNavigationItem) => (
           <div key={item?.menu_name}>
             {item?.hasSubMenu === true ? (
               <>
@@ -90,7 +90,7 @@ const SidebarNavItems = () => {
                   )}
                 >
                   <div className="mt-2 ml-6 pb-4 pl-1">
-                    {item?.subMenuItems?.map((subItem: any) => {
+                    {item?.subMenuItems?.map((subItem: SidebarSubMenuItem) => {
                       const isActive = pathname === subItem.href || pathname.startsWith(subItem.href + "/");
                       return (
                         <Link

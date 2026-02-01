@@ -22,7 +22,7 @@ export default function Header({ variant = "transparent" }: HeaderProps) {
   const [isAtTop, setIsAtTop] = useState(true);
   const lastScrollYRef = useRef(0);
 
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     // 👉 Run for BOTH variants

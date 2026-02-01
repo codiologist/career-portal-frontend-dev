@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Exo_2, Funnel_Sans, Inter } from "next/font/google";
+import { Exo_2 } from "next/font/google";
 import "./globals.css";
 
 import ScreenSizeIndicator from "@/components/screen-size-indicator";
@@ -7,19 +7,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ToastContainer } from "react-toastify";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
 const exo2 = Exo_2({
   variable: "--font-exo-2",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const funnelSans = Funnel_Sans({
-  variable: "--font-funnel-sans", // Optional: for CSS variable usage
   subsets: ["latin"],
   display: "swap",
 });

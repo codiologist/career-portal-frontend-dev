@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import logo from "/public/career-portal-logo.png";
 
 export default function MobileMenu() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
@@ -16,6 +16,9 @@ export default function MobileMenu() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
+
+  // Keep expandedSections in sync
+  const hasExpandedSections = Object.values(expandedSections).some(Boolean);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,15 +56,6 @@ export default function MobileMenu() {
       setExpandedSections({});
     }
   };
-
-  const toggleSection = (sectionName: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [sectionName]: !prev[sectionName],
-    }));
-  };
-
-  const hasExpandedSections = Object.values(expandedSections).some(Boolean);
 
   return (
     <>
