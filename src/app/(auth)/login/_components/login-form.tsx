@@ -7,11 +7,11 @@ import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 import { useAuth } from "@/context/AuthContext";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+// import { toast } from "sonner";
 import { Lock, Mail } from "lucide-react";
 import { toast } from "react-toastify";
 import * as z from "zod";
@@ -36,7 +36,6 @@ interface ErrorResponse {
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { login, refetchUser } = useAuth();
-  const { executeRecaptcha } = useRecaptcha();
   const router = useRouter();
 
   const form = useForm<LoginFormData>({
@@ -50,15 +49,7 @@ const LoginForm = () => {
   async function onSubmit(data: LoginFormData) {
     setIsLoading(true);
     try {
-      // Get reCAPTCHA token
-      const captchaToken = await executeRecaptcha("login");
-      if (!captchaToken) {
-        toast.error("reCAPTCHA verification failed. Please try again.");
-        setIsLoading(false);
-        return;
-      }
-
-      await login(data.email, data.password, captchaToken);
+      await login(data.email, data.password);
       toast.success("Login successful!");
       router.push("/profile");
       refetchUser();

@@ -20,7 +20,6 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 
 import { useAuth } from "@/context/AuthContext";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { SignupInput, signupSchema } from "@/schemas/auth.schema";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -29,7 +28,6 @@ const RegistrationForm = () => {
   const [loading, setLoading] = useState(false);
 
   const { signup } = useAuth();
-  const { executeRecaptcha } = useRecaptcha();
 
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -52,14 +50,6 @@ const RegistrationForm = () => {
     try {
       setLoading(true);
 
-      // Get reCAPTCHA token
-      const captchaToken = await executeRecaptcha("register");
-      if (!captchaToken) {
-        toast.error("reCAPTCHA verification failed. Please try again.");
-        setLoading(false);
-        return;
-      }
-
       console.log("Registration data:", data);
 
       const res = await signup(
@@ -67,7 +57,6 @@ const RegistrationForm = () => {
         data.email,
         data.phone,
         data.password,
-        captchaToken,
       );
 
       console.log(res);
