@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import ResetPasswordForm from "./_components/reset-password-form";
 import bg from "/public/register-bg.jpg";
 
@@ -21,7 +22,9 @@ const ResetPassword = () => {
               </div>
 
               <div className="relative z-10 mt-5">
-                <ResetPasswordForm />
+                <Suspense fallback={<div className="text-center">Loading...</div>}>
+                  <ResetPasswordForm />
+                </Suspense>
               </div>
 
               <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
