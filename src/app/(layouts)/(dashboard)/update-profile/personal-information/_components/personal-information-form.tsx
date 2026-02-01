@@ -1,11 +1,5 @@
 const PersonalInformationForm = () => {
-  return (
-    <div>
-      Personal Information Form
-      <p>lorem</p>
-      <p>lorem 2</p>
-    </div>
-  );
+  return <div>Personal Information Form</div>;
 };
 
 export default PersonalInformationForm;
