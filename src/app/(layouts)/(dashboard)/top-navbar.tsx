@@ -44,7 +44,6 @@ const TopNavBar = () => {
       <MobileSidebar
         toggleSidebarMenu={toggleSidebarMenu}
         isMenuOpen={isMenuOpen}
-        setIsMenuOpen={setIsMenuOpen}
       />
     </>
   );
