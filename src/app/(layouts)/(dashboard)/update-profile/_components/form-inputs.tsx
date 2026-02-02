@@ -10,6 +10,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -18,12 +23,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import type React from "react"; // Keep this if you have other React specific types
 import type { ReactNode } from "react";
 import type { FieldValues, Path, UseFormReturn } from "react-hook-form";
 
 // New imports for Combobox
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Command,
   CommandEmpty,
@@ -32,12 +39,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 
 // Common Text Input Component
@@ -340,6 +342,73 @@ export const ComboBoxInput = ({
                   </CommandGroup>
                 </CommandList>
               </Command>
+            </PopoverContent>
+          </Popover>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};
+
+interface DatePickerProps {
+  form: UseFormReturn<any>;
+  label?: string;
+  name?: string;
+  required?: boolean;
+  placeholder?: string;
+}
+
+export const DatePickerInput = ({
+  form,
+  label = "Date",
+  name = "defaultDate",
+  placeholder = "Select a date",
+  required = false,
+}: DatePickerProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [date, setDate] = useState<Date | null>(null);
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="form-inoput-item datepicker-input">
+          <FormLabel>
+            {label} {required && <span className="text-destructive">*</span>}
+          </FormLabel>
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "hover:text-muted-foreground! h-10 w-full border-[#D0D5DD] bg-white pr-2 text-black! selection:text-red-600! hover:bg-transparent [&_svg]:size-6",
+                    !field.value && "text-muted-foreground",
+                  )}
+                >
+                  {field.value ? (
+                    format(field.value, "PPP")
+                  ) : (
+                    <span className="text-muted-foreground">{placeholder}</span>
+                  )}
+                  <CalendarIcon className="text-blue-water-700 ml-auto" />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                captionLayout="dropdown"
+                selected={field.value}
+                onSelect={async (selectedDate) => {
+                  field.onChange(selectedDate);
+                  await form.trigger(name);
+                  setDate(selectedDate!);
+                  setIsOpen(false);
+                }}
+                defaultMonth={field.value}
+              />
             </PopoverContent>
           </Popover>
           <FormMessage />
