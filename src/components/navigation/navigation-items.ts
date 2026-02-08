@@ -85,7 +85,7 @@ export const sidebarNavigationItems = [
       },
       {
         menu_name: "Upload Documents",
-        href: "/documents",
+        href: "/update-profile//documents",
         icon: icons.Upload,
       },
     ],

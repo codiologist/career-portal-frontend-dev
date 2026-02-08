@@ -3,9 +3,10 @@
 import React from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileText, Loader2, Upload, X } from "lucide-react";
+import { FileText, FolderOpen, Image, Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { TbFileTypeDocx } from "react-icons/tb";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -13,11 +14,11 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { FaRegFilePdf } from "react-icons/fa6";
 import ProfileContentCard from "../../../_components/profile-content-card";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -125,9 +126,13 @@ export function ResumeUploadForm() {
     const extension = fileName.split(".").pop()?.toLowerCase();
 
     if (extension === "pdf") {
-      return <FileText className="h-5 w-5 text-red-500" />;
+      return <FaRegFilePdf className="size-8 text-red-500" />;
     } else if (extension === "doc" || extension === "docx") {
-      return <FileText className="h-5 w-5 text-blue-500" />;
+      return <TbFileTypeDocx className="size-8 text-blue-500" />;
+    } else if (extension === "jpg" || extension === "jpg") {
+      return <Image className="size-8 text-green-500" />;
+    } else if (extension === "png" || extension === "png") {
+      return <Image className="size-8 text-green-500" />;
     } else {
       return <FileText className="h-5 w-5 text-green-500" />;
     }
@@ -202,45 +207,54 @@ export function ResumeUploadForm() {
                       </div>
                     )}
 
-                    {fileName && (
-                      <label
-                        htmlFor="resume-change"
-                        className="text-primary inline-flex cursor-pointer items-center text-sm hover:underline"
-                      >
-                        Change file
-                        <input
-                          id="resume-change"
-                          type="file"
-                          className="hidden"
-                          accept={ACCEPTED_EXTENSIONS}
-                          onChange={(e) => handleFileChange(e, onChange)}
-                        />
-                      </label>
-                    )}
+                    <p className="text-muted-foreground text-sm">
+                      Upload your resume in PDF, DOC, DOCX, JPG, or PNG format
+                      (max 5MB)
+                    </p>
+
+                    <div className="flex justify-between">
+                      {fileName && (
+                        <label
+                          htmlFor="resume-change"
+                          className="bg-dark-blue-700 hover:text-primary/80 inline-flex cursor-pointer items-center rounded-sm px-4 py-2 text-base font-medium text-white transition-colors"
+                        >
+                          <FolderOpen className="mr-2 size-5" />
+                          Change file
+                          <input
+                            id="resume-change"
+                            type="file"
+                            className="hidden"
+                            accept={ACCEPTED_EXTENSIONS}
+                            onChange={(e) => handleFileChange(e, onChange)}
+                          />
+                        </label>
+                      )}
+                      <div>
+                        <Button
+                          type="submit"
+                          className="text-base font-semibold"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <Loader2 className="mr-1 size-5 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-1 size-5" />
+                              Uplaod
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </FormControl>
-                <FormDescription>
-                  Upload your resume in PDF, DOC, DOCX, JPG, or PNG format (max
-                  5MB)
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-4 w-4" />
-                Uplaod
-              </>
-            )}
-          </Button>
         </form>
       </Form>
     </ProfileContentCard>
