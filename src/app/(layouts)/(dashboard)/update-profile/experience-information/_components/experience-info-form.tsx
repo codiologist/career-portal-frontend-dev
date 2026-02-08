@@ -105,7 +105,7 @@ export function ExperienceInfoForm() {
               ) : (
                 <Send className="h-4 w-4" />
               )}
-              {isSubmitting ? "Submitting..." : "Submit Experience"}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </Button>
           </div>
         </form>

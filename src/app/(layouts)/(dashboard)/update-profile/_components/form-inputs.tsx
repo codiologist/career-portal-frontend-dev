@@ -227,7 +227,7 @@ export const SelectInput = ({
             disabled={disabled}
           >
             <FormControl>
-              <SelectTrigger className="[&>svg]:text-tertiary-primary/60 relative h-10! w-full border-[#D0D5DD] bg-white transition-all duration-300 max-sm:h-11 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:opacity-100">
+              <SelectTrigger className="[&>svg]:stroke-dark-blue-700 relative h-10! w-full border-[#D0D5DD] bg-white transition-all duration-300 max-sm:h-11 [&>svg]:h-6 [&>svg]:w-6 [&>svg]:opacity-100">
                 <SelectValue
                   className="placeholder:text-primary-gray!"
                   placeholder={placeholder}

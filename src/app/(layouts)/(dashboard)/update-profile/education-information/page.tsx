@@ -1,4 +1,4 @@
-import EducationForm from "./_components/education-form";
+import EducationForm from "./_components/education-info-form";
 
 const EducationFormPage = () => {
   return <EducationForm />;

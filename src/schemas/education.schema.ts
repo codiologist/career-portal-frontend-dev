@@ -1,27 +1,90 @@
 import { z } from "zod";
 
-export const educationItemSchema = z.object({
-  degree: z.string().min(2, "Degree is required"),
-  subject: z.string().min(2, "Subject is required"),
-  institution: z.string().min(2, "Institution name is required"),
-  passingYear: z
-    .string()
-    .regex(/^\d{4}$/, "Enter a valid year")
-    .refine((year) => Number(year) <= new Date().getFullYear(), {
-      message: "Passing year cannot be in the future",
-    }),
-  result: z.string().min(1, "Result is required"),
-  certificate: z
-    .any()
-    .optional()
-    .refine(
-      (file) => !file || file instanceof File,
-      "Invalid certificate file",
-    ),
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+const HIDE_MARKS: string[] = ["Appeared", "Pass"];
+
+const educationEntrySchema = z
+  .object({
+    levelOfEducation: z.string().min(1, "Level of education is required"),
+    degreeName: z.string().min(1, "Degree name is required"),
+    board: z.string().optional(),
+    subjectMajorGroup: z.string().min(1, "Subject/Major/Group is required"),
+    instituteName: z.string().min(1, "Institute name is required"),
+    resultType: z.string().min(1, "Result type is required"),
+    totalMarksCGPA: z.string().optional(),
+    yearOfPassing: z.string().min(1, "Year of passing is required"),
+    certificate: z.any(),
+  })
+  .superRefine((data, ctx) => {
+    // console.log("Log From Schema", data);
+    // Board is required when degree is SSC or HSC
+    if (data.degreeName === "SSC" || data.degreeName === "HSC") {
+      if (!data.board || data.board.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Board is required for SSC/HSC",
+          path: ["board"],
+        });
+      }
+    }
+    const hideMarks = HIDE_MARKS.includes(data.resultType);
+    if (!hideMarks) {
+      if (!data.totalMarksCGPA || data.totalMarksCGPA.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            data.resultType === "Grade"
+              ? "CGPA is required"
+              : "Total marks is required",
+          path: ["totalMarksCGPA"],
+        });
+      }
+    }
+
+    // Certificate is required and must be a File
+    if (!data.certificate || !(data.certificate instanceof File)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Certificate is required",
+        path: ["certificate"],
+      });
+    } else {
+      // Validate file size
+      if (data.certificate.size > MAX_FILE_SIZE) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Max file size is 5MB",
+          path: ["certificate"],
+        });
+      }
+      // Validate file type
+      if (!ACCEPTED_IMAGE_TYPES.includes(data.certificate.type)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Only .jpeg, .jpg, and .png files are accepted",
+          path: ["certificate"],
+        });
+      }
+    }
+  });
+
+export const educationInfoFormSchema = z.object({
+  educations: z
+    .array(educationEntrySchema)
+    .min(1, "At least one education entry is required"),
 });
 
-export const educationFormSchema = z.object({
-  educations: z.array(educationItemSchema).min(1, "Add at least one education"),
-});
+export type EducationInfoFormValues = z.infer<typeof educationInfoFormSchema>;
 
-export type EducationFormValues = z.infer<typeof educationFormSchema>;
+export const defaultEducation = {
+  levelOfEducation: "",
+  degreeName: "",
+  board: "",
+  subjectMajorGroup: "",
+  instituteName: "",
+  resultType: "",
+  totalMarksCGPA: "",
+  yearOfPassing: "",
+  certificate: null,
+};

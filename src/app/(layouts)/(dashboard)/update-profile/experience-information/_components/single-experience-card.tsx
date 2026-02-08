@@ -44,19 +44,20 @@ export function SingleExperienceCard({
   return (
     <div className="border-border bg-card relative rounded-lg border p-6 shadow-sm">
       <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-dark-blue-700 mb-1 text-lg font-bold xl:text-xl">
-          Experience {index + 1}
+        <h1 className="text-dark-blue-700 mb-1 text-lg font-bold xl:text-2xl">
+          Experience - {index + 1}
         </h1>
         {canRemove && (
           <Button
             type="button"
-            variant="ghost"
-            size="icon"
+            variant="outline"
+            size="sm"
+            className="border-red-600 text-sm font-semibold text-red-600! hover:bg-red-600 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
             onClick={onRemove}
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
             aria-label={`Remove experience ${index + 1}`}
           >
             <Trash2 className="h-5 w-5" />
+            Remove
           </Button>
         )}
       </div>
@@ -104,7 +105,7 @@ export function SingleExperienceCard({
           form={form}
           name={`experiences.${index}.location`}
           label="Location"
-          placeholder="e.g. New York, USA"
+          placeholder="e.g. Dhaka, Chattogram"
           required
           icon={<MapPin className="size-5" />}
         />
@@ -171,8 +172,8 @@ export function SingleExperienceCard({
           form={form}
           name={`experiences.${index}.responsiblities`}
           className="h-40! text-base!"
-          label="Responsibilities / Role"
-          placeholder="Tell us about yourself"
+          label="Responsibilities & Achievements"
+          placeholder="Tell us about job responsibilities"
           required
           icon={<TextInitial />}
         />

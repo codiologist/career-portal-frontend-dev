@@ -74,9 +74,14 @@ export const sidebarNavigationItems = [
         icon: icons.GraduationCap,
       },
       {
-        menu_name: "Awards & Training",
-        href: "/update-profile/award-training-information",
+        menu_name: "Achievements & Training",
+        href: "/update-profile/achievement-training-information",
         icon: icons.Award,
+      },
+      {
+        menu_name: "References",
+        href: "/update-profile/reference-information",
+        icon: icons.Users,
       },
       {
         menu_name: "Upload Documents",
