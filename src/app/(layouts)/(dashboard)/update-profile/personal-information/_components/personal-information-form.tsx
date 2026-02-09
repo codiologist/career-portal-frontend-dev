@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import api from "@/lib/axiosInstance";
 
+import { socialLinksDropdown } from "@/_data/social_links_dropdown";
 import { useAuth } from "@/context/AuthContext";
 import {
   PersonalInfoValues,
@@ -33,27 +34,6 @@ import {
   TextInput,
 } from "../../_components/form-inputs";
 import { MultiSelectInput } from "../../_components/multi-select-input";
-
-const socialLinks = [
-  { label: "Facebook", value: "Facebook" },
-  { label: "Instagram", value: "Instagram" },
-  { label: "Twitter (X)", value: "Twitter" },
-  { label: "LinkedIn", value: "LinkedIn" },
-  { label: "YouTube", value: "YouTube" },
-  { label: "GitHub", value: "GitHub" },
-  { label: "GitLab", value: "GitLab" },
-  { label: "Bitbucket", value: "Bitbucket" },
-  { label: "WhatsApp", value: "WhatsApp" },
-  { label: "Telegram", value: "Telegram" },
-  { label: "Pinterest", value: "Pinterest" },
-  { label: "Reddit", value: "Reddit" },
-  { label: "Medium", value: "Medium" },
-  { label: "Dev.to", value: "DevTo" },
-  { label: "Stack Overflow", value: "StackOverflow" },
-  { label: "Dribbble", value: "Dribbble" },
-  { label: "Behance", value: "Behance" },
-  { label: "Website", value: "Website" },
-];
 
 const PersonalInformationForm = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -479,7 +459,7 @@ const PersonalInformationForm = () => {
                                   <SelectInput
                                     form={form}
                                     name={`socialLink.${index}.label`}
-                                    options={socialLinks}
+                                    options={socialLinksDropdown}
                                   />
                                 </div>
                                 {fields.length > 1 && (

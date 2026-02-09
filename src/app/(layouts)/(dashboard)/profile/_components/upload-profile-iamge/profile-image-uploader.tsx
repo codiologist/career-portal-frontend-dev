@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera, ImageUp, Loader2, Upload } from "lucide-react";
-import * as React from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import default_image from "/public/default-avatar.jpg";
@@ -22,13 +22,17 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/axiosInstance";
 import { cn } from "@/lib/utils";
 import Image, { type StaticImageData } from "next/image";
+import { toast } from "react-toastify";
 
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 const imageUploadSchema = z.object({
+  name: z.string().optional(),
   image: z
     .custom<File>()
     .refine((file) => file instanceof File, "Please select an image")
@@ -56,17 +60,29 @@ export function ProfileImageUploader({
   onUpload,
   className,
 }: ProfileImageUploaderProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [preview, setPreview] = React.useState<string | null>(null);
-  const [currentImage, setCurrentImage] = React.useState<
-    string | StaticImageData
-  >(defaultImage);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [currentImage, setCurrentImage] = useState<string | StaticImageData>(
+    defaultImage,
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { user } = useAuth();
+  const avatar = (user as any)?.data?.documents?.find(
+    (doc: any) => doc.type === "AVATAR",
+  );
+
+  useEffect(() => {
+    if (avatar) {
+      setCurrentImage(`${process.env.NEXT_PUBLIC_API_URL}/${avatar.path}`);
+    }
+  }, [avatar, user]);
 
   const form = useForm<ImageUploadFormValues>({
     resolver: zodResolver(imageUploadSchema),
     defaultValues: {
+      name: "avatar",
       image: undefined,
     },
   });
@@ -114,25 +130,32 @@ export function ProfileImageUploader({
       } else {
         // Default behavior: call API endpoint
         const formData = new FormData();
-        formData.append("image", data.image);
-        console.log(data.image);
+        formData.append("name", "avatar");
+        formData.append("avatar", data.image);
+        console.log(data);
 
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+        const response = await api.post("/upload/user/avatar", formData);
 
-        if (!response.ok) {
+        console.log("Avatar Response:", response);
+        toast.success("Avatar uploaded successfully!");
+
+        if (response.status !== 200) {
           throw new Error("Upload failed");
         }
       }
 
       // Update the displayed image with the preview
       if (preview) {
+        // const avatar = res;
         setCurrentImage(preview);
       }
       handleCloseModal();
     } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Failed to upload image. Please try again.");
+      }
       console.error("Upload error:", error);
       form.setError("image", {
         message: "Failed to upload image. Please try again.",
@@ -151,7 +174,7 @@ export function ProfileImageUploader({
           alt="Profile Image"
           width={160}
           height={190}
-          className="border-dark-blue-100 h-47.5 w-40 rounded-sm border-2 object-cover object-top"
+          className="border-dark-blue-100 h-47.5 w-40 rounded-sm border-2 bg-white object-cover object-top"
         />
 
         {/* Overlay Icon - Bottom Right */}

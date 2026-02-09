@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AchievementInfoFormValues } from "@/schemas/achievement.schema";
 import {
+  Award,
   Building2,
   Globe,
   MapPin,
@@ -143,15 +144,16 @@ export default function AchievementTrainingCard({
           form={form}
           name={`achievements.${index}.title`}
           label="Title "
-          placeholder="Enter Title"
+          placeholder="e.g. Developing Back-End Apps with Node.js and Express"
           required
+          icon={<Award className="size-5" />}
         />
 
         <TextInput
           form={form}
           name={`achievements.${index}.organization`}
           label="Organization Name "
-          placeholder="Enter organization name"
+          placeholder="Coursera"
           required
           icon={<Building2 className="size-5" />}
         />
@@ -159,16 +161,16 @@ export default function AchievementTrainingCard({
         <TextInput
           form={form}
           name={`achievements.${index}.website`}
-          label="Website "
-          placeholder="Enter Website"
+          label="Website"
+          placeholder="e.g. https://www.coursera.org/"
           icon={<Globe className="size-5" />}
         />
 
         <TextInput
           form={form}
           name={`achievements.${index}.location`}
-          label="Location "
-          placeholder="Enter Location"
+          label="Location"
+          placeholder="e.g. Online, New York, etc."
           required
           icon={<MapPin className="size-5" />}
         />
@@ -189,7 +191,7 @@ export default function AchievementTrainingCard({
             name={`achievements.${index}.description`}
             className="h-40! text-base!"
             label="Description of Achievements"
-            placeholder="Tell us about job responsibilities"
+            placeholder="Short details of the achievement"
             required
             icon={<TextInitial />}
           />

@@ -21,7 +21,6 @@ const ProfileButton = () => {
       console.error("Logout failed:", error);
     }
   };
-  console.log(user);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger

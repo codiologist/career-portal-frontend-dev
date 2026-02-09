@@ -18,6 +18,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import api from "@/lib/axiosInstance";
 import { FaRegFilePdf } from "react-icons/fa6";
 import ProfileContentCard from "../../../_components/profile-content-card";
 
@@ -92,12 +93,9 @@ export function ResumeUploadForm() {
       formData.append("resume", data.resume);
 
       // Replace this URL with your actual backend API endpoint
-      const response = await fetch("YOUR_BACKEND_API_URL/upload-resume", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await api.post("/upload/user/resume", formData);
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error("Failed to upload resume");
       }
 

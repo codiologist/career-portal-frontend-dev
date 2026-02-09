@@ -64,6 +64,11 @@ export const sidebarNavigationItems = [
         icon: LiaUserTieSolid,
       },
       {
+        menu_name: "Address Info",
+        href: "/update-profile/address-information",
+        icon: icons.MapPin,
+      },
+      {
         menu_name: "Experience Info",
         href: "/update-profile/experience-information",
         icon: LiaBriefcaseSolid,
