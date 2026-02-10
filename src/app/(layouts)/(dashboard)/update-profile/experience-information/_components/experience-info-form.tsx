@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 
+import api from "@/lib/axiosInstance";
 import {
   defaultExperienceItem,
   experienceInfoFormSchema,
@@ -30,6 +31,7 @@ export function ExperienceInfoForm() {
   });
 
   async function onSubmit(data: ExperienceInfoFormValues) {
+    setIsSubmitting(true);
     const payload = {
       experiences: data.experiences.map((exp) => ({
         ...exp,
@@ -37,32 +39,23 @@ export function ExperienceInfoForm() {
         endDate: exp.endDate ? exp.endDate.toISOString() : null,
       })),
     };
-    setIsSubmitting(true);
 
     // Console log the data
     console.log("Experience Form Submitted Data:", payload);
 
     try {
-      const response = await fetch("http://localhost:4000/update-profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await api.post(
+        "/user/profile/experience",
+        payload.experiences,
+      );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      // if (!response.t) {
+      //   throw new Error(`HTTP error! status: ${response.status}`);
+      // }
 
-      const result = await response.json();
-      console.log("Server response:", result);
-      alert("Experience details submitted successfully!");
+      console.log("Exp Form Res", response);
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert(
-        "Failed to submit to server. Data has been logged to console. Make sure your backend is running at http://localhost:4000",
-      );
     } finally {
       setIsSubmitting(false);
     }

@@ -50,6 +50,7 @@ export default function EducationCard({
   canRemove,
 }: EducationCardProps) {
   const [mounted, setMounted] = useState(false);
+  //For File
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [certificateError, setCertificateError] = useState<string | null>(null);

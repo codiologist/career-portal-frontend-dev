@@ -2,14 +2,18 @@
 "use client";
 
 import api from "@/lib/axiosInstance";
-import { TGetMyProfileResponse } from "@/types/profile.types";
+import { TGetMyProfileResponse } from "@/types/profile-types";
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 interface AuthContextType {
   user: TGetMyProfileResponse | null;
   loading: boolean;
-  login: (email: string, password: string, captchaToken?: string) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+    captchaToken?: string,
+  ) => Promise<void>;
   signup: (
     fullName: string,
     email: string,
@@ -48,7 +52,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   // Login function
-  const login = async (email: string, password: string, captchaToken?: string) => {
+  const login = async (
+    email: string,
+    password: string,
+    captchaToken?: string,
+  ) => {
     const res = await api.post(
       "/auth/login",
       { email, password, captchaToken },

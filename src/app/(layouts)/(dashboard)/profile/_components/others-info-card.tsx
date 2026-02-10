@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import {
   BadgeCheck,
   Calendar,
@@ -9,7 +10,27 @@ import Image from "next/image";
 import { MdOutlineBloodtype } from "react-icons/md";
 import ProfileContentCard from "../../_components/profile-content-card";
 
-const OtherInfoCard = () => {
+interface OtherInfoCardProps {
+  dob: string | undefined;
+  maritalStatus: string | undefined;
+  gender: string | undefined;
+  nationality: string | undefined;
+  nationalId: string | undefined;
+  bloodGroup: string | undefined;
+  religion: string | undefined;
+}
+
+const OtherInfoCard = ({
+  dob,
+  maritalStatus,
+  gender,
+  nationality,
+  nationalId,
+  bloodGroup,
+  religion,
+}: OtherInfoCardProps) => {
+  const formattedDob = dob ? format(new Date(dob), "dd-MM-yyyy") : "";
+
   return (
     <section className="mt-10">
       <ProfileContentCard title="Other Details">
@@ -33,7 +54,7 @@ const OtherInfoCard = () => {
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Date of Birth
               </p>
-              <p className="font-bold">22th October, 1987</p>
+              <p className="font-bold">{formattedDob}</p>
             </div>
           </li>
 
@@ -45,7 +66,9 @@ const OtherInfoCard = () => {
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Marital Status
               </p>
-              <p className="font-bold">Married</p>
+              <p className="font-bold capitalize">
+                {maritalStatus?.toLowerCase()}
+              </p>
             </div>
           </li>
 
@@ -55,7 +78,9 @@ const OtherInfoCard = () => {
             </div>
             <div>
               <p className="text-dark-blue-700 mb-0 font-semibold">Gender</p>
-              <p className="font-bold">Male</p>
+              <p className="font-bold capitalize">
+                {gender?.toLocaleLowerCase()}
+              </p>
             </div>
           </li>
 
@@ -67,7 +92,7 @@ const OtherInfoCard = () => {
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Nationality
               </p>
-              <p className="font-bold">Bangladeshi</p>
+              <p className="font-bold">{nationality}</p>
             </div>
           </li>
 
@@ -79,7 +104,7 @@ const OtherInfoCard = () => {
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 NID Number
               </p>
-              <p className="font-bold">1234567890</p>
+              <p className="font-bold">{nationalId}</p>
             </div>
           </li>
 
@@ -91,7 +116,7 @@ const OtherInfoCard = () => {
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Blood Group
               </p>
-              <p className="font-bold">B+ve</p>
+              <p className="font-bold">{bloodGroup}</p>
             </div>
           </li>
 
@@ -107,7 +132,7 @@ const OtherInfoCard = () => {
             </div>
             <div>
               <p className="text-dark-blue-700 mb-0 font-semibold">Religion</p>
-              <p className="font-bold">Islam</p>
+              <p className="font-bold">{religion}</p>
             </div>
           </li>
         </ul>

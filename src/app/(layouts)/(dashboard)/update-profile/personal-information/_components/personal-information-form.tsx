@@ -42,7 +42,7 @@ const PersonalInformationForm = () => {
     useState<TUserOptionsStrict>();
   const [showSpouseField, setShowSpouseField] = useState(false);
 
-  console.log("All Dropdown", personalDropdownData);
+  // console.log("All Dropdown", personalDropdownData);
 
   const form = useForm<PersonalInfoValues>({
     resolver: zodResolver(
@@ -140,7 +140,7 @@ const PersonalInformationForm = () => {
           : [],
       });
 
-      console.log("Profile Data", profileRes?.candidatePersonal);
+      // console.log("Profile Data", profileRes);
     };
 
     // call the async loader
@@ -176,7 +176,6 @@ const PersonalInformationForm = () => {
     } catch (error) {
       console.error("Error updating personal information:", error);
     }
-    console.log(payload);
   }
   return (
     <div className="space-y-10">

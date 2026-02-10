@@ -1,21 +1,30 @@
-// Root API response
+/* ---------- Root API Response ---------- */
+
+import { TUserDocument } from "./document-types";
+
 export interface TGetMyProfileResponse {
   status: boolean;
   message: string;
   data: TUserData;
 }
 
-// User object
+/* ---------- User Object ---------- */
+
 export interface TUserData {
   id: string;
   fullName: string;
   email: string;
-  role: "USER" | "ADMIN" | "RECRUITER"; // extend if you have more roles
-  createdAt: string; // ISO date string
+  role: "USER" | "ADMIN" | "RECRUITER";
+  createdAt: string;
+
   candidatePersonal: TUserProfile;
+
+  // raw uploaded documents
+  documents: TUserDocument[];
 }
 
-// Profile object
+/* ---------- Profile Object ---------- */
+
 export interface TUserProfile {
   id: string;
   userId: string;
@@ -28,13 +37,14 @@ export interface TUserProfile {
   gender: "MALE" | "FEMALE" | "OTHER";
   maritalStatus: "MARRIED" | "UNMARRIED" | "DIVORCED" | "WIDOWED";
 
-  dob: string; // ISO date string
+  dob: string;
   nationality: string;
+
   religionId: string;
-  religion: LookupItem;
+  religion: TLookupItem;
 
   bloodGroupId: string;
-  bloodGroup: LookupItem;
+  bloodGroup: TLookupItem;
 
   nationalId: string;
 
@@ -46,13 +56,14 @@ export interface TUserProfile {
 
   portfolioLink?: string;
 
-  photo: FileAsset | null;
-  resume: FileAsset | null;
-  signature: FileAsset | null;
+  // derived from documents
+  photo: TFileAsset | null;
+  resume: TFileAsset | null;
+  signature: TFileAsset | null;
 
-  interests: Interest[];
-  skills: Skill[];
-  socialLink: SocialLink[];
+  interests: TInterest[];
+  skills: TSkill[];
+  socialLink: TSocialLink[];
 
   createdAt: string;
   updatedAt: string;
@@ -60,29 +71,30 @@ export interface TUserProfile {
 
 /* ---------- Supporting Types ---------- */
 
-export interface LookupItem {
+export interface TLookupItem {
   id: string;
   name: string;
 }
 
-export interface Interest {
+export interface TInterest {
   id: string;
-  name: string;
+  interstName: string;
 }
 
-export interface Skill {
+export interface TSkill {
   id: string;
-  name: string;
-  level?: string;
+  skillName: string;
 }
 
-export interface SocialLink {
+export interface TSocialLink {
   id: string;
   label: string;
   url: string;
 }
 
-export interface FileAsset {
+/* ---------- File Assets (Frontend-safe) ---------- */
+
+export interface TFileAsset {
   id: string;
   url: string;
   fileName: string;

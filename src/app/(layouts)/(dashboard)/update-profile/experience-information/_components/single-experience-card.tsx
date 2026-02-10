@@ -170,9 +170,9 @@ export function SingleExperienceCard({
       <div className="mt-5">
         <TextAreaInput
           form={form}
-          name={`experiences.${index}.responsiblities`}
+          name={`experiences.${index}.responsibilities`}
           className="h-40! text-base!"
-          label="Responsibilities & Achievements"
+          label="Responsibilities"
           placeholder="Tell us about job responsibilities"
           required
           icon={<TextInitial />}

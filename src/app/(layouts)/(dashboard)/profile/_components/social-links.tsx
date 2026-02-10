@@ -1,9 +1,9 @@
 import { socialLinksDropdown } from "@/_data/social_links_dropdown";
-import { SocialLink } from "@/types/profile.types";
+import { TSocialLink } from "@/types/profile-types";
 import Link from "next/link";
 
 interface SocialLinksProps {
-  data: SocialLink[] | null | undefined;
+  data: TSocialLink[] | null | undefined;
 }
 
 const SocialLinks = ({ data }: SocialLinksProps) => {

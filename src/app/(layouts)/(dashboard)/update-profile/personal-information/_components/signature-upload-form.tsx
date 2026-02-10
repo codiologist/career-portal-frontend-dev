@@ -8,68 +8,52 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axiosInstance";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileIcon, FolderOpen, Loader2, Upload, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaFilePdf, FaFileWord } from "react-icons/fa6";
 import { toast } from "sonner";
 import * as z from "zod";
 import ProfileContentCard from "../../../_components/profile-content-card";
 
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const MAX_FILE_SIZE = 800 * 1024; // 800KB
 const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "image/jpeg",
+  "image/png",
 ];
 
-const ACCEPTED_EXTENSIONS = ".pdf,.doc,.docx";
+const ACCEPTED_EXTENSIONS = ".jpg,.jpeg,.png";
 
 const formSchema = z.object({
-  name: z.enum(["RESUME"]),
-  resume: z
-    .instanceof(File, { message: "Please upload a resume file" })
+  signature: z
+    .instanceof(File, { message: "Please upload a signature file" })
     .refine(
       (file) => file.size <= MAX_FILE_SIZE,
-      "File size must be less than 2MB",
+      "File size must be less than 500KB",
     )
     .refine(
       (file) => ACCEPTED_FILE_TYPES.includes(file.type),
-      "File must be PDF, DOC, DOCX",
+      "File must be JPG, or PNG",
     ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function ResumeUploadForm() {
+export function SignatureUploadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { user } = useAuth();
-
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "RESUME",
-      resume: undefined,
-    },
   });
-
-  const resumePath = (user as any)?.data?.documents?.find(
-    (doc: any) => doc.type === "RESUME",
-  );
-
-  useEffect(() => {
-    if (resumePath) {
-      setPreviewUrl(`${process.env.NEXT_PUBLIC_API_URL}/${resumePath?.path}`);
-    }
-  }, [resumePath, user]);
 
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -98,8 +82,8 @@ export function ResumeUploadForm() {
       URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
     }
-    form.setValue("resume", undefined as unknown as File);
-    form.clearErrors("resume");
+    form.setValue("signature", undefined as unknown as File);
+    form.clearErrors("signature");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -110,25 +94,24 @@ export function ResumeUploadForm() {
 
     // Log the submitted data
     console.log("Submitted data:", {
-      name: data.name,
-      fileSize: data.resume.size,
-      fileType: data.resume.type,
-      file: data.resume,
+      name: data.signature.name,
+      fileSize: data.signature.size,
+      fileType: data.signature.type,
+      file: data.signature,
     });
 
     try {
       const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("resume", data.resume);
+      formData.append("signature", data.signature);
 
       // Replace this URL with your actual backend API endpoint
-      const response = await api.post("/upload/user/resume", formData);
+      const response = await api.post("/upload/user/signature", formData);
 
       if (response.status !== 200) {
-        throw new Error("Failed to upload resume");
+        throw new Error("Failed to upload signature");
       }
 
-      toast.success("Resume uploaded successfully!", {
+      toast.success("Signature uploaded successfully!", {
         description: "We'll review your application and get back to you soon.",
       });
 
@@ -151,20 +134,20 @@ export function ResumeUploadForm() {
   return (
     <ProfileContentCard>
       <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
-        Resume
+        Signature
       </h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
-            name="resume"
+            name="signature"
             render={({ field: { onChange, value, ref, ...fieldProps } }) => (
               <FormItem>
                 <FormControl>
                   <div className="space-y-3">
                     {!fileName ? (
                       <label
-                        htmlFor="resume-upload"
+                        htmlFor="signature-upload"
                         className="border-muted-foreground/25 bg-muted/50 hover:bg-muted flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors"
                       >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -177,7 +160,7 @@ export function ResumeUploadForm() {
                           </p>
                         </div>
                         <input
-                          id="resume-upload"
+                          id="signature-upload"
                           type="file"
                           className="hidden"
                           accept={ACCEPTED_EXTENSIONS}
@@ -191,6 +174,8 @@ export function ResumeUploadForm() {
                     ) : (
                       <div className="bg-muted/50 flex items-center justify-between rounded-lg border p-4">
                         <div className="flex items-center gap-3">
+                          {/* {getFileIcon()} */}
+
                           {previewUrl ? (
                             <Image
                               src={previewUrl || "/placeholder.svg"}
@@ -238,19 +223,19 @@ export function ResumeUploadForm() {
                     )}
 
                     <p className="text-muted-foreground text-sm">
-                      Upload your resume in PDF, DOC, DOCX format (max 2MB)
+                      Upload your signature in JPG, or PNG format (max 500KB)
                     </p>
 
                     <div className="flex justify-between">
                       {fileName && (
                         <label
-                          htmlFor="resume-change"
+                          htmlFor="signature-change"
                           className="bg-dark-blue-700 hover:text-primary/80 inline-flex cursor-pointer items-center rounded-sm px-4 py-2 text-base font-medium text-white transition-colors"
                         >
                           <FolderOpen className="mr-2 size-5" />
                           Change file
                           <input
-                            id="resume-change"
+                            id="signature-change"
                             type="file"
                             className="hidden"
                             accept={ACCEPTED_EXTENSIONS}
@@ -272,7 +257,7 @@ export function ResumeUploadForm() {
                           ) : (
                             <>
                               <Upload className="mr-1 size-5" />
-                              Uplaod Resume
+                              Uplaod Signature
                             </>
                           )}
                         </Button>

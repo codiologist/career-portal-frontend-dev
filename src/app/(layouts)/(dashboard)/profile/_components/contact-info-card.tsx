@@ -2,7 +2,21 @@ import { Mail, Phone, PhoneCallIcon } from "lucide-react";
 import { BsSignpost2 } from "react-icons/bs";
 import ProfileContentCard from "../../_components/profile-content-card";
 
-const ContactInfoCard = () => {
+interface ContactInfoCardProps {
+  mobileNo?: string;
+  alternatePhone?: string;
+  email?: string;
+  presentAddress?: string;
+  permanentAddress?: string;
+}
+
+const ContactInfoCard = ({
+  mobileNo,
+  alternatePhone,
+  email,
+  presentAddress,
+  permanentAddress,
+}: ContactInfoCardProps) => {
   return (
     <section className="mt-14">
       <ProfileContentCard title="Contact Information">
@@ -13,7 +27,7 @@ const ContactInfoCard = () => {
             </div>
             <div>
               <p className="text-dark-blue-700 mb-0 font-semibold">Phone</p>
-              <p className="font-bold">01876594444</p>
+              <p className="font-bold">{mobileNo}</p>
             </div>
           </li>
 
@@ -25,7 +39,7 @@ const ContactInfoCard = () => {
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Alternate Phone
               </p>
-              <p className="font-bold">017211558877</p>
+              <p className="font-bold">{alternatePhone}</p>
             </div>
           </li>
 
@@ -35,7 +49,7 @@ const ContactInfoCard = () => {
             </div>
             <div>
               <p className="text-dark-blue-700 mb-0 font-semibold">Email</p>
-              <p className="font-bold">robin@analyzenbd.com</p>
+              <p className="font-bold">{email}</p>
             </div>
           </li>
           <li className="flex gap-2">

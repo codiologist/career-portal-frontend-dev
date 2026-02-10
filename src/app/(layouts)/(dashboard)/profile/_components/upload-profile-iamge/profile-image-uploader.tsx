@@ -75,7 +75,7 @@ export function ProfileImageUploader({
 
   useEffect(() => {
     if (avatar) {
-      setCurrentImage(`${process.env.NEXT_PUBLIC_API_URL}/${avatar.path}`);
+      setCurrentImage(`${process.env.NEXT_PUBLIC_API_URL}/${avatar?.path}`);
     }
   }, [avatar, user]);
 

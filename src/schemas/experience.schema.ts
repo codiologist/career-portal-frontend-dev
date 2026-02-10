@@ -10,7 +10,7 @@ const experienceItemSchema = z
     startDate: z.date({ error: "Start date is required" }),
     endDate: z.date({ error: "End date is required" }).optional(),
     isContinue: z.boolean(),
-    responsiblities: z
+    responsibilities: z
       .string()
       .min(150, "Responsiblities must be at least 150 characters"),
   })
@@ -53,5 +53,5 @@ export const defaultExperienceItem = {
   startDate: undefined as unknown as Date,
   endDate: undefined as unknown as Date,
   isContinue: false,
-  responsiblities: "",
+  responsibilities: "",
 };
