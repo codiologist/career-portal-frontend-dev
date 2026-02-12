@@ -15,16 +15,16 @@ import {
   Building2,
   IdCardLanyard,
   MapPin,
-  TextInitial,
   Toolbox,
   Trash2,
 } from "lucide-react";
-import type { UseFormReturn } from "react-hook-form";
+import { type UseFormReturn } from "react-hook-form";
 import {
   DatePickerInput,
-  TextAreaInput,
+  // TextAreaInput,
   TextInput,
 } from "../../_components/form-inputs";
+import RichTextEditor from "../../_components/rich-text-editor";
 
 interface SingleExperienceCardProps {
   form: UseFormReturn<ExperienceInfoFormValues>;
@@ -166,16 +166,28 @@ export function SingleExperienceCard({
           />
         </div>
       </div>
-
       <div className="mt-5">
-        <TextAreaInput
-          form={form}
+        <FormField
+          control={form.control}
           name={`experiences.${index}.responsibilities`}
-          className="h-40! text-base!"
-          label="Responsibilities"
-          placeholder="Tell us about job responsibilities"
-          required
-          icon={<TextInitial />}
+          render={({ field }) => {
+            const respError =
+              form.formState.errors?.experiences?.[index]?.responsibilities;
+            return (
+              <>
+                <RichTextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Responsiblities"
+                />
+                {respError?.message && (
+                  <p className="text-destructive text-sm">
+                    {String(respError.message)}
+                  </p>
+                )}
+              </>
+            );
+          }}
         />
       </div>
     </div>

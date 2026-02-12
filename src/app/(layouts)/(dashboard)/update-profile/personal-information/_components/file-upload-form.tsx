@@ -139,6 +139,7 @@ export function FileUploadForm() {
           <FormField
             control={form.control}
             name="resume"
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             render={({ field: { onChange, value, ref, ...fieldProps } }) => (
               <FormItem>
                 <FormLabel className="text-foreground text-sm font-semibold">

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import api from "@/lib/axiosInstance";
 import {
   defaultReference,
   referenceInfoFormSchema,
@@ -32,29 +33,26 @@ export default function ReferenceInfoForm() {
     setIsSubmitting(true);
 
     try {
-      console.log("Education Form Data:", data);
+      console.log("Reference Form Data:", data);
 
       const formData = new FormData();
 
       // 1️⃣ Remove certificate from JSON payload
-      const referencePayload = data.references.map((reference) => ({
-        referenceName: reference.referenceName,
-      }));
+      // const referencePayload = data.references.map((reference) => ({
+      //   referenceName: reference.referenceName,
+      // }));
 
       // 2️⃣ Append JSON object
-      formData.append("educations", JSON.stringify(referencePayload));
+      // formData.append("educations", JSON.stringify(referencePayload));
 
-      const response = await fetch("/api/update-profile", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await api.post("/api/user/profile/refarance", formData);
 
-      if (!response.ok) {
-        throw new Error("Failed to submit form");
-      }
+      // if (!response.ok) {
+      //   throw new Error("Failed to submit form");
+      // }
 
-      const result = await response.json();
-      console.log("Server Response:", result);
+      // const result = await response.json();
+      console.log("Server Response:", response);
 
       alert("Education details submitted successfully!");
     } catch (error) {

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axiosInstance";
+import { TGetMyProfileResponse } from "@/types/profile-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileIcon, FolderOpen, Loader2, Upload, X } from "lucide-react";
 import Image from "next/image";
@@ -61,8 +62,8 @@ export function ResumeUploadForm() {
     },
   });
 
-  const resumePath = (user as any)?.data?.documents?.find(
-    (doc: any) => doc.type === "RESUME",
+  const resumePath = (user as TGetMyProfileResponse)?.data?.documents?.find(
+    (doc) => doc.type === "RESUME",
   );
 
   useEffect(() => {
@@ -158,6 +159,7 @@ export function ResumeUploadForm() {
           <FormField
             control={form.control}
             name="resume"
+            /* eslint-disable @typescript-eslint/no-unused-vars */
             render={({ field: { onChange, value, ref, ...fieldProps } }) => (
               <FormItem>
                 <FormControl>

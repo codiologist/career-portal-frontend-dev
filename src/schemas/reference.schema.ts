@@ -33,6 +33,7 @@ export type ReferenceInfoFormValues = z.infer<typeof referenceInfoFormSchema>;
 export const defaultReference = {
   name: "",
   designation: "",
+  companyName: "",
   phone: "",
   emailAddress: "",
   relationship: "",

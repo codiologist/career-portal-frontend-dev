@@ -141,6 +141,7 @@ export function SignatureUploadForm() {
           <FormField
             control={form.control}
             name="signature"
+            /* eslint-disable @typescript-eslint/no-unused-vars */
             render={({ field: { onChange, value, ref, ...fieldProps } }) => (
               <FormItem>
                 <FormControl>

@@ -9,6 +9,12 @@ import {
   PersonalInfoValues,
   personalInformationSchema,
 } from "@/schemas/personal-information.schema";
+import {
+  TInterest,
+  TSkill,
+  TSocialLink,
+  TUserData,
+} from "@/types/profile-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BriefcaseBusiness,
@@ -87,7 +93,7 @@ const PersonalInformationForm = () => {
     name: "socialLink",
   });
 
-  const profileRef = useRef<any>(null);
+  const profileRef = useRef<TUserData | null>(null);
 
   useEffect(() => {
     const dropdownData = async (): Promise<void> => {
@@ -123,20 +129,22 @@ const PersonalInformationForm = () => {
         careerObjective: profileRes?.candidatePersonal?.careerObjective ?? "",
         portfolioLink: profileRes?.candidatePersonal?.portfolioLink ?? "",
         skillIds: profileRes?.candidatePersonal?.skills
-          ? profileRes.candidatePersonal.skills.map((skill: any) =>
+          ? profileRes.candidatePersonal.skills.map((skill: TSkill) =>
               typeof skill === "string" ? skill : skill.id,
             )
           : [],
         interstIds: profileRes?.candidatePersonal?.interests
-          ? profileRes.candidatePersonal.interests.map((interest: any) =>
+          ? profileRes.candidatePersonal.interests.map((interest: TInterest) =>
               typeof interest === "string" ? interest : interest.id,
             )
           : [],
         socialLink: profileRes?.candidatePersonal?.socialLink
-          ? profileRes.candidatePersonal.socialLink.map((link: any) => ({
-              label: link.label,
-              url: link.url,
-            }))
+          ? profileRes.candidatePersonal.socialLink.map(
+              (link: TSocialLink) => ({
+                label: link.label,
+                url: link.url,
+              }),
+            )
           : [],
       });
 

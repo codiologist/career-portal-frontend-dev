@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,10 +29,12 @@ const ProfileButton = () => {
       >
         <div className="group flex items-center">
           <Avatar className="h-10 w-10 cursor-pointer">
-            <AvatarImage
-              src={user?.data?.profile?.avatar}
+            {/* <AvatarImage
+              src={
+                (user as TGetMyProfileResponse)?.data?.candidatePersonal?.avatar
+              }
               alt={user?.data?.fullName || "user"}
-            />
+            /> */}
             <AvatarFallback className="bg-primary text-lg font-bold text-white">
               {formatUserName(user?.data?.fullName)}
             </AvatarFallback>

@@ -14,8 +14,8 @@ const ContactInfoCard = ({
   mobileNo,
   alternatePhone,
   email,
-  presentAddress,
-  permanentAddress,
+  // presentAddress,
+  // permanentAddress,
 }: ContactInfoCardProps) => {
   return (
     <section className="mt-14">
