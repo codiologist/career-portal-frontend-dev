@@ -12,7 +12,7 @@ const experienceItemSchema = z
     isContinue: z.boolean(),
     responsibilities: z
       .string()
-      .min(150, "Responsiblities must be at least 150 characters"),
+      .min(1, "Responsiblities must be at least 150 characters"),
   })
   .superRefine((data, ctx) => {
     if (!data.isContinue && !data.endDate) {
@@ -36,6 +36,14 @@ const experienceItemSchema = z
     }
   });
 
+export type ExperienceApiItem = Omit<
+  ExperienceItem,
+  "startDate" | "endDate"
+> & {
+  startDate: string | null;
+  endDate: string | null;
+};
+
 export const experienceInfoFormSchema = z.object({
   experiences: z
     .array(experienceItemSchema)
@@ -43,6 +51,7 @@ export const experienceInfoFormSchema = z.object({
 });
 
 export type ExperienceInfoFormValues = z.infer<typeof experienceInfoFormSchema>;
+export type ExperienceItem = ExperienceInfoFormValues["experiences"][number];
 
 export const defaultExperienceItem = {
   designation: "",

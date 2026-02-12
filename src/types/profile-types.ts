@@ -1,6 +1,8 @@
 /* ---------- Root API Response ---------- */
 
 import { TUserDocument } from "./document-types";
+import { CandidateExperiences } from "./experience-types";
+import { CandidateReferences } from "./reference-types";
 
 export interface TGetMyProfileResponse {
   status: boolean;
@@ -21,6 +23,8 @@ export interface TUserData {
 
   // raw uploaded documents
   documents: TUserDocument[];
+  candidateExperiences: CandidateExperiences;
+  candidateReferences: CandidateReferences; // ✅ FIXED
 }
 
 /* ---------- Profile Object ---------- */

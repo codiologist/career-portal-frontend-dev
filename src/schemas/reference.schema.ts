@@ -29,8 +29,9 @@ export const referenceInfoFormSchema = z.object({
 });
 
 export type ReferenceInfoFormValues = z.infer<typeof referenceInfoFormSchema>;
+export type ReferenceItem = ReferenceInfoFormValues["references"][number];
 
-export const defaultReference = {
+export const defaultReferenceItem = {
   name: "",
   designation: "",
   companyName: "",

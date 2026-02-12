@@ -3,19 +3,23 @@
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 
+import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axiosInstance";
 import {
   defaultExperienceItem,
+  ExperienceApiItem,
   experienceInfoFormSchema,
   ExperienceInfoFormValues,
 } from "@/schemas/experience.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, PlusCircle, Send } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import { SingleExperienceCard } from "./single-experience-card";
 
 export function ExperienceInfoForm() {
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ExperienceInfoFormValues>({
@@ -30,36 +34,108 @@ export function ExperienceInfoForm() {
     name: "experiences",
   });
 
+  useEffect(() => {
+    if (!user) return;
+
+    const experiences =
+      user?.data?.candidateExperiences?.length > 0
+        ? (
+            user.data.candidateExperiences as unknown as ExperienceApiItem[]
+          ).map((exp: ExperienceApiItem) => ({
+            ...exp,
+            startDate: exp.startDate ? new Date(exp.startDate) : undefined,
+            endDate: exp.endDate ? new Date(exp.endDate) : undefined,
+          }))
+        : [{ ...defaultExperienceItem }];
+
+    form.reset({ experiences });
+  }, [user, form]);
+
   async function onSubmit(data: ExperienceInfoFormValues) {
     setIsSubmitting(true);
     const payload = {
-      experiences: data.experiences.map((exp) => ({
-        ...exp,
-        startDate: exp.startDate.toISOString(),
-        endDate: exp.endDate ? exp.endDate.toISOString() : null,
+      experiences: data.experiences.map((experience) => ({
+        ...experience,
+        startDate: experience.startDate.toISOString(),
+        endDate: experience.endDate ? experience.endDate.toISOString() : null,
       })),
     };
-
-    // Console log the data
-    console.log("Experience Form Submitted Data:", payload);
 
     try {
       const response = await api.post(
         "/user/profile/experience",
         payload.experiences,
       );
+      toast.success("Experience information submitted successfully!");
 
-      // if (!response.t) {
-      //   throw new Error(`HTTP error! status: ${response.status}`);
-      // }
+      // ✅ Refetch profile
+      const profileRes = await api.get("/user/me");
+      const experiencesFromApi =
+        profileRes?.data?.data?.candidateExperiences ?? [];
 
-      console.log("Exp Form Res", response);
+      const formattedExperiences = (
+        experiencesFromApi as ExperienceApiItem[]
+      ).map((exp: ExperienceApiItem) => ({
+        ...exp,
+        startDate: exp.startDate ? new Date(exp.startDate) : undefined,
+        endDate: exp.endDate ? new Date(exp.endDate) : undefined,
+      }));
+      console.log(profileRes);
+      // ✅ Reset entire form
+      form.reset({
+        experiences:
+          formattedExperiences.length > 0
+            ? formattedExperiences
+            : [{ ...defaultExperienceItem }],
+      });
+
+      return response;
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
       setIsSubmitting(false);
     }
   }
+
+  // async function onSubmit(data: ExperienceInfoFormValues) {
+  //   setIsSubmitting(true);
+
+  //   const payload = {
+  //     experiences: data.experiences.map((exp) => ({
+  //       ...exp,
+  //       startDate: experience.startDate.toISOString(),
+  //       endDate: experience.endDate ? experience.endDate.toISOString() : null,
+  //     })),
+  //   };
+
+  //   try {
+  //     await api.post("/user/profile/experience", payload.experiences);
+
+  //     // ✅ Refetch profile
+  //     const profileRes = await api.get("/user/me");
+
+  //     const experiencesFromApi = profileRes.data?.experiences ?? [];
+
+  //     // ✅ Convert API response to form format
+  //     const formattedExperiences = experiencesFromApi.map((exp: any) => ({
+  //       ...exp,
+  //       startDate: experience.startDate ? new Date(experience.startDate) : null,
+  //       endDate: experience.endDate ? new Date(experience.endDate) : null,
+  //     }));
+
+  //     // ✅ Reset entire form
+  //     form.reset({
+  //       experiences:
+  //         formattedExperiences.length > 0
+  //           ? formattedExperiences
+  //           : [{ ...defaultExperienceItem }],
+  //     });
+  //   } catch (error) {
+  //     console.error("Error submitting form:", error);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // }
 
   return (
     <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-4xl p-0 xl:border xl:p-6">
