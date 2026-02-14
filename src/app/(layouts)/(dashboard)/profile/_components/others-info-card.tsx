@@ -54,7 +54,13 @@ const OtherInfoCard = ({
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Date of Birth
               </p>
-              <p className="font-bold">{formattedDob}</p>
+              {!formattedDob ? (
+                <p className="text-sm font-medium text-gray-400">
+                  No record found
+                </p>
+              ) : (
+                <p className="font-bold">{formattedDob}</p>
+              )}
             </div>
           </li>
 
@@ -66,9 +72,15 @@ const OtherInfoCard = ({
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Marital Status
               </p>
-              <p className="font-bold capitalize">
-                {maritalStatus?.toLowerCase()}
-              </p>
+              {!maritalStatus ? (
+                <p className="text-sm font-medium text-gray-400">
+                  No record found
+                </p>
+              ) : (
+                <p className="font-bold capitalize">
+                  {maritalStatus?.toLowerCase()}
+                </p>
+              )}
             </div>
           </li>
 
@@ -78,9 +90,15 @@ const OtherInfoCard = ({
             </div>
             <div>
               <p className="text-dark-blue-700 mb-0 font-semibold">Gender</p>
-              <p className="font-bold capitalize">
-                {gender?.toLocaleLowerCase()}
-              </p>
+              {!gender ? (
+                <p className="text-sm font-medium text-gray-400">
+                  No record found
+                </p>
+              ) : (
+                <p className="font-bold capitalize">
+                  {gender?.toLocaleLowerCase()}
+                </p>
+              )}
             </div>
           </li>
 
@@ -92,7 +110,13 @@ const OtherInfoCard = ({
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Nationality
               </p>
-              <p className="font-bold">{nationality}</p>
+              {!nationality ? (
+                <p className="text-sm font-medium text-gray-400">
+                  No record found
+                </p>
+              ) : (
+                <p className="font-bold">{nationality}</p>
+              )}
             </div>
           </li>
 
@@ -104,7 +128,13 @@ const OtherInfoCard = ({
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 NID Number
               </p>
-              <p className="font-bold">{nationalId}</p>
+              {!nationalId ? (
+                <p className="text-sm font-medium text-gray-400">
+                  No record found
+                </p>
+              ) : (
+                <p className="font-bold">{nationalId}</p>
+              )}
             </div>
           </li>
 
@@ -116,7 +146,13 @@ const OtherInfoCard = ({
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Blood Group
               </p>
-              <p className="font-bold">{bloodGroup}</p>
+              {!bloodGroup ? (
+                <p className="text-sm font-medium text-gray-400">
+                  No record found
+                </p>
+              ) : (
+                <p className="font-bold">{bloodGroup}</p>
+              )}
             </div>
           </li>
 
@@ -132,7 +168,13 @@ const OtherInfoCard = ({
             </div>
             <div>
               <p className="text-dark-blue-700 mb-0 font-semibold">Religion</p>
-              <p className="font-bold">{religion}</p>
+              {!religion ? (
+                <p className="text-sm font-medium text-gray-400">
+                  No record found
+                </p>
+              ) : (
+                <p className="font-bold">{religion}</p>
+              )}
             </div>
           </li>
         </ul>

@@ -20,9 +20,12 @@ const ProfileContentCard = ({
       )}
     >
       <CardContent className="p-0">
-        <h1 className="text-dark-blue-700 mb-4 text-[27px] font-bold">
-          {title}
-        </h1>
+        {title && (
+          <h1 className="text-dark-blue-700 mb-4 text-[27px] font-bold">
+            {title}
+          </h1>
+        )}
+
         {children}
       </CardContent>
     </Card>

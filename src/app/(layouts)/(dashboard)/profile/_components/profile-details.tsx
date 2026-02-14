@@ -1,13 +1,12 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
-import AchievementCard from "./achievement-card";
+import { TUserData } from "@/types/profile-types";
+import { useEffect, useState } from "react";
 import CareerObjectivCard from "./career-objective-card";
 import ContactInfoCard from "./contact-info-card";
-import EducationalInfoCard from "./educational-info-card";
 import ExperienceInfoCard from "./experience-info-card";
 import { InterestsCard } from "./intertest-card";
 import IntroCard from "./intro-card";
-import OtherDocumentsCard from "./other-documets-card";
 import OtherInfoCard from "./others-info-card";
 import PersonalInfoCard from "./personal-info-card";
 import ReferenceInfo from "./reference-info-card";
@@ -15,14 +14,21 @@ import SkillsInfoCard from "./skills-info-card";
 
 const ProfileDetails = () => {
   const { user } = useAuth();
+  const [userData, setUserData] = useState<TUserData | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setUserData(user.data);
+    }
+  }, [user]);
 
   console.log("Profile Details Card", user);
 
   return (
     <div className="relative z-10 mx-auto mt-14 w-full px-0 lg:-mt-14 xl:px-10">
       <IntroCard
-        user={user?.data?.candidatePersonal}
-        documents={user?.data?.documents}
+        user={userData?.candidatePersonal}
+        documents={userData?.documents}
       />
 
       <div className="flex flex-col gap-0 xl:flex-row xl:gap-14">
@@ -30,16 +36,17 @@ const ProfileDetails = () => {
           <CareerObjectivCard
             content={user?.data?.candidatePersonal?.careerObjective}
           />
-          <ExperienceInfoCard />
-          <EducationalInfoCard />
+          <ExperienceInfoCard experiences={user?.data?.candidateExperiences} />
+          {/* <EducationalInfoCard /> */}
           <SkillsInfoCard skills={user?.data?.candidatePersonal?.skills} />
-          <AchievementCard />
-          <ReferenceInfo />
-          <OtherDocumentsCard />
+          {/* <AchievementCard /> */}
+          <ReferenceInfo references={user?.data?.candidateReferences} />
+          {/* <OtherDocumentsCard /> */}
         </div>
         <div className="w-full xl:w-4/12">
           <ContactInfoCard
-            mobileNo={user?.data?.candidatePersonal?.mobileNo}
+            regPhone={user?.data?.phone}
+            phone={user?.data?.candidatePersonal?.mobileNo}
             alternatePhone={user?.data?.candidatePersonal?.alternatePhone}
             email={user?.data?.email}
             //  presentAddress={user?.data?.candidatePersonal?.presentAddress}

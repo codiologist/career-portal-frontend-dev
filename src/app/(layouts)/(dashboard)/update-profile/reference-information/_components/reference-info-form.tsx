@@ -58,7 +58,7 @@ export default function ReferenceInfoForm() {
     setIsSubmitting(true);
 
     try {
-      await api.post("/user/profile/refarance", data.references);
+      await api.post("/user/profile/reference", data.references);
 
       toast.success("Reference information submitted successfully!");
 

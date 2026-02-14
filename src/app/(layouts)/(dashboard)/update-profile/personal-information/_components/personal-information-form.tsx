@@ -31,6 +31,7 @@ import { useEffect, useRef, useState } from "react";
 import { Resolver, useFieldArray, useForm } from "react-hook-form";
 import { FaMobileAlt } from "react-icons/fa";
 import { LiaUserTieSolid } from "react-icons/lia";
+import { toast } from "react-toastify";
 import { TUserOptionsStrict } from "../../../../../../types/dropdown-types";
 import ProfileContentCard from "../../../_components/profile-content-card";
 import {
@@ -113,7 +114,8 @@ const PersonalInformationForm = () => {
       if (!getProfileData) return;
 
       form.reset({
-        fullName: profileRes.fullName ?? "",
+        fullName:
+          profileRes?.candidatePersonal?.fullName ?? profileRes.fullName,
         fatherName: profileRes?.candidatePersonal?.fatherName ?? "",
         motherName: profileRes?.candidatePersonal?.motherName ?? "",
         spouseName: profileRes?.candidatePersonal?.spouseName ?? "",
@@ -180,6 +182,7 @@ const PersonalInformationForm = () => {
     };
     try {
       const res = await api.post("/user/profile/personal", payload);
+      toast.success("Personal Information updated successfully.");
       console.log("Profile Response", res.data);
     } catch (error) {
       console.error("Error updating personal information:", error);

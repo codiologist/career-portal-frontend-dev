@@ -24,7 +24,13 @@ const PersonalInfoCard = ({
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Father Name
               </p>
-              <p className="font-bold">{fatherName}</p>
+              {!fatherName ? (
+                <p className="text-sm font-medium text-gray-400">
+                  No record found
+                </p>
+              ) : (
+                <p className="font-bold">{fatherName}</p>
+              )}
             </div>
           </li>
           <li className="flex gap-2">
@@ -35,7 +41,13 @@ const PersonalInfoCard = ({
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Mother Name
               </p>
-              <p className="font-bold">{motherName}</p>
+              {!motherName ? (
+                <p className="text-sm font-medium text-gray-400">
+                  No record found
+                </p>
+              ) : (
+                <p className="font-bold">{motherName}</p>
+              )}
             </div>
           </li>
           {spouseName && (

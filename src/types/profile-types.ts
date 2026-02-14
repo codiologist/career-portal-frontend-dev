@@ -16,6 +16,7 @@ export interface TUserData {
   id: string;
   fullName: string;
   email: string;
+  phone: string;
   role: "USER" | "ADMIN" | "RECRUITER";
   createdAt: string;
 

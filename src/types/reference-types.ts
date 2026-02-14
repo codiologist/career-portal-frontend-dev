@@ -1,10 +1,10 @@
 export interface CandidateReference {
   id: string;
   userId: string;
+  name: string;
   designation: string;
   companyName: string;
   emailAddress: string;
-  name: string;
   phone: string;
   relationship: string;
 

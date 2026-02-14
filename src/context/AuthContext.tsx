@@ -3,6 +3,7 @@
 
 import api from "@/lib/axiosInstance";
 import { TGetMyProfileResponse } from "@/types/profile-types";
+import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
@@ -30,6 +31,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const pathname = usePathname();
   const [user, setUser] = useState<TGetMyProfileResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -49,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // run once on mount
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [pathname]);
 
   // Login function
   const login = async (
