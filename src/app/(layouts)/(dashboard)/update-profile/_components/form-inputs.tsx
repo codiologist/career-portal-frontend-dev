@@ -55,6 +55,7 @@ interface TextInputProps<T extends FieldValues> {
   maxLength?: number;
   minLength?: number;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  inputClassName?: string;
 }
 export const TextInput = <T extends FieldValues>({
   form,
@@ -69,6 +70,7 @@ export const TextInput = <T extends FieldValues>({
   maxLength,
   minLength,
   inputMode,
+  inputClassName,
 }: TextInputProps<T>) => {
   return (
     <FormField
@@ -85,6 +87,7 @@ export const TextInput = <T extends FieldValues>({
                 className={cn(
                   "&[aria-invalid='true']_&]:border-destructive h-10 rounded-sm border-[#D0D5DD] bg-white text-base! disabled:bg-gray-200 disabled:text-gray-900 disabled:opacity-100 max-sm:h-11",
                   icon && "pr-12",
+                  inputClassName,
                 )}
                 type={type}
                 placeholder={`${placeholder}`}
