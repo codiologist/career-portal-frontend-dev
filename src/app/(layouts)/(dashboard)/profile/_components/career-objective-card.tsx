@@ -17,7 +17,7 @@ const CareerObjectivCard = ({ content }: CareerObjectiveCardProps) => {
         </div>
         {!content ? (
           <p className="font-medium text-gray-400">
-            No career objective found.
+            No career objective data found.
           </p>
         ) : (
           <p

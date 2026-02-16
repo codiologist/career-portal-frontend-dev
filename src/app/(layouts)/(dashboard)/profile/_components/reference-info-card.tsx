@@ -11,7 +11,7 @@ const ReferenceInfo = ({ references }: ReferenceInfoProps) => {
       <ProfileContentCard title="References">
         {references && references.length === 0 ? (
           <p className="text-sm font-medium text-gray-400">
-            No references found
+            No references data found
           </p>
         ) : (
           <div

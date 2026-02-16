@@ -14,7 +14,7 @@ export const InterestsCard = ({ interests = [] }: InterestsCardProps) => {
       <ProfileContentCard title="Interest">
         {interests.length === 0 ? (
           <p className="text-sm font-medium text-gray-400">
-            No interests found
+            No interests data found
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">

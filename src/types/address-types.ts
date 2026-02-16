@@ -13,6 +13,7 @@ export type Upazila = {
   id: number;
   name: string;
   districtId: number;
+  type: "UPAZILA" | "CITY_CORPORATION";
 };
 
 export type CityCorporation = {
@@ -45,6 +46,19 @@ export type PostOffice = {
   postOffice: string;
   postCode: string;
   districtId: number;
+};
+
+export type AddressFormValues = {
+  divisionId: string;
+  districtId: string;
+
+  upazilaId: string;
+  upazilaCityCorpId: string;
+
+  unionId: string;
+  municipalityId: string;
+
+  isCityCorporation: boolean;
 };
 
 export type Divisions = Division[];

@@ -1,4 +1,4 @@
-import { AddressInfoForm } from "./address-info-form";
+import { AddressInfoForm } from "./_components/address-info-form";
 
 const AddressInfoPage = () => {
   return (

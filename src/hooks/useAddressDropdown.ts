@@ -97,9 +97,14 @@ export const useAddressDropdown = (
       setLoadingUpazila(true);
       const data = await fetchDropdown({ divisionId, districtId });
 
-      const sortedUpazilas = [...(data?.upazilas || [])].sort((a, b) =>
-        a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-      );
+      const sortedUpazilas = [...(data?.upazilas || [])]
+        .sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+        )
+        .map((u: Upazila) => ({
+          ...u,
+          type: "UPAZILA",
+        }));
 
       const cityCorporation = Array.isArray(data?.cityCorporations)
         ? data.cityCorporations.map((c: CityCorporation) => ({
