@@ -41,8 +41,8 @@ export function AddressFields({
   // Watch all relevant fields for UI state
   const divisionId = form.watch(`${prefix}.divisionId`) ?? "";
   const districtId = form.watch(`${prefix}.districtId`) ?? "";
-  const upazilaCityCorpId = form.watch(`${prefix}.upazilaCityCorpId`) ?? "";
-  const unionMunicipalityId = form.watch(`${prefix}.unionMunicipalityId`) ?? "";
+  // const upazilaCityCorpId = form.watch(`${prefix}.upazilaCityCorpId`) ?? "";
+  // const unionMunicipalityId = form.watch(`${prefix}.unionMunicipalityId`) ?? "";
   const upazilaId = form.watch(`${prefix}.upazilaId`) ?? "";
   const cityCorporationId = form.watch(`${prefix}.cityCorporationId`) ?? "";
 
