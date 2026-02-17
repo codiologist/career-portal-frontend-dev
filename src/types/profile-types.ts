@@ -1,5 +1,6 @@
 /* ---------- Root API Response ---------- */
 
+import { TUserAddress } from "./address-types";
 import { TUserDocument } from "./document-types";
 import { CandidateExperiences } from "./experience-types";
 import { CandidateReferences } from "./reference-types";
@@ -19,13 +20,13 @@ export interface TUserData {
   phone: string;
   role: "USER" | "ADMIN" | "RECRUITER";
   createdAt: string;
-
   candidatePersonal: TUserProfile;
 
   // raw uploaded documents
   documents: TUserDocument[];
   candidateExperiences: CandidateExperiences;
   candidateReferences: CandidateReferences; // ✅ FIXED
+  addresses: TUserAddress[];
 }
 
 /* ---------- Profile Object ---------- */

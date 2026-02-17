@@ -10,12 +10,8 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { useForm, type Resolver } from "react-hook-form";
-// import {
-//   addressFormSchema,
-//   type AddressFormValues,
-//   transformToSubmitFormat,
-// } from "@/lib/validations/address-schema";
+import { useAuth } from "@/context/AuthContext";
+import type { AddressInitialValues } from "@/hooks/useAddressDropdown";
 import api from "@/lib/axiosInstance";
 import {
   addressFormSchema,
@@ -25,16 +21,27 @@ import {
 } from "@/schemas/address.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Send } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm, type Resolver } from "react-hook-form";
 import { toast } from "react-toastify";
 import { AddressFields } from "./address-fields";
 
 export function AddressInfoForm() {
-  // const [submittedData, setSubmittedData] = useState<ReturnType<
-  //   typeof transformToSubmitFormat
-  // > | null>(null);
+  const { user } = useAuth();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [presentAddressType, setPresentAddressType] = useState<string>();
+  const [permanentAddressType, setPermanentAddressType] = useState<string>();
+
+  // Parsed initial values from the saved address — passed into AddressFields
+  // so useAddressDropdown can set each field right after its list loads.
+  // This avoids the race condition of calling setValue before the list exists.
+  const [presentInitial, setPresentInitial] = useState<
+    AddressInitialValues | undefined
+  >();
+  const [permanentInitial, setPermanentInitial] = useState<
+    AddressInitialValues | undefined
+  >();
 
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(
@@ -45,18 +52,82 @@ export function AddressInfoForm() {
 
   const isSameAsPresent = form.watch("isSameAsPresent");
 
-  async function onSubmit(data: AddressFormValues) {
-    const payload = transformToSubmitFormat(data);
+  // Load address type IDs once on mount
+  useEffect(() => {
+    const load = async () => {
+      const res = await api.get("/user/profile/address-type/dropdown");
+      setPresentAddressType(res.data.data[0].id);
+      setPermanentAddressType(res.data.data[1].id);
+    };
+    load();
+  }, []);
 
+  // When user data arrives, parse the saved addresses into initialValues.
+  // We only set the plain text fields (wardNo, addressLine) on the form here.
+  // All Select fields are handled inside useAddressDropdown via initialValues —
+  // it sets each one right after the corresponding dropdown list finishes loading.
+  useEffect(() => {
+    if (!user?.data?.addresses?.length) return;
+
+    const addresses = user.data.addresses;
+
+    // Convert any value to string; null/undefined → ""
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const str = (v: any): string =>
+      v === null || v === undefined ? "" : String(v);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const toInitialValues = (addr: any): AddressInitialValues => ({
+      divisionId: str(addr?.divisionId),
+      districtId: str(addr?.districtId),
+      upazilaId: str(addr?.upazilaId),
+      cityCorporationId: str(addr?.cityCorporationId),
+      unionParishadId: str(addr?.unionParishadId),
+      municipalityId: str(addr?.municipalityId),
+      policeStationId: str(addr?.policeStationId),
+      postOfficeId: str(addr?.postOfficeId),
+      wardNo: str(addr?.wardNo),
+      addressLine: addr?.addressLine ?? "",
+    });
+
+    const presentValues = toInitialValues(addresses[0] ?? null);
+    const permanentValues = toInitialValues(addresses[1] ?? null);
+    console.log(presentValues);
+    console.log(permanentValues);
+
+    // Store as state — these are passed as props to AddressFields which passes
+    // them into the hook. The hook then sets each Select field after its list loads.
+    setPresentInitial(presentValues);
+    setPermanentInitial(permanentValues);
+
+    // Set plain text fields immediately — they have no dependency on fetched lists
+    form.setValue("present.divisionId", presentValues.divisionId || "");
+    form.setValue("present.districtId", presentValues.districtId || "");
+    form.setValue("present.wardNo", presentValues.wardNo || "");
+    form.setValue("present.addressLine", presentValues.addressLine || "");
+
+    form.setValue("permanent.divisionId", permanentValues.divisionId || "");
+    form.setValue("permanent.districtId", permanentValues.districtId || "");
+
+    form.setValue("permanent.wardNo", permanentValues.wardNo || "");
+    form.setValue("permanent.addressLine", permanentValues.addressLine || "");
+  }, [user, form]);
+
+  async function onSubmit(data: AddressFormValues) {
+    setIsSubmitting(true);
+    const payload = transformToSubmitFormat(
+      data,
+      presentAddressType!,
+      permanentAddressType!,
+    );
     try {
-      const response = await api.post("/user/profile/address", payload);
+      await api.post("/user/profile/address", payload);
       toast.success("Address information submitted successfully!");
     } catch (error) {
       console.error("Error submitting form:", error);
+      toast.error("Failed to submit address information.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // setSubmittedData(payload);
-    console.log("Submitted payload:", JSON.stringify(payload, null, 2));
   }
 
   return (
@@ -69,7 +140,11 @@ export function AddressInfoForm() {
               <h2 className="text-foreground mb-5 text-lg font-bold xl:text-2xl">
                 Present Address
               </h2>
-              <AddressFields form={form} prefix="present" />
+              <AddressFields
+                form={form}
+                prefix="present"
+                initialValues={presentInitial}
+              />
             </CardContent>
           </Card>
 
@@ -80,7 +155,6 @@ export function AddressInfoForm() {
                 Permanent Address
               </h2>
 
-              {/* Checkbox: same as present */}
               <FormField
                 control={form.control}
                 name="isSameAsPresent"
@@ -100,9 +174,12 @@ export function AddressInfoForm() {
                 )}
               />
 
-              {/* Permanent Address fields — hidden when isSameAsPresent */}
               {!isSameAsPresent && (
-                <AddressFields form={form} prefix="permanent" />
+                <AddressFields
+                  form={form}
+                  prefix="permanent"
+                  initialValues={permanentInitial}
+                />
               )}
 
               {isSameAsPresent && (
@@ -112,6 +189,7 @@ export function AddressInfoForm() {
               )}
             </CardContent>
           </Card>
+
           <div className="flex justify-end">
             <Button
               type="submit"

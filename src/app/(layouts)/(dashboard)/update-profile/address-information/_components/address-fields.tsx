@@ -15,10 +15,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAddressDropdown } from "@/hooks/useAddressDropdown";
-
+import {
+  type AddressInitialValues,
+  useAddressDropdown,
+} from "@/hooks/useAddressDropdown";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,17 +29,26 @@ const getLabel = (list: any[], id: string | number, key = "name") =>
 interface AddressFieldsProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
-  prefix: string; // e.g. "present" or "permanent"
+  prefix: string;
+  initialValues?: AddressInitialValues;
 }
 
-export function AddressFields({ form, prefix }: AddressFieldsProps) {
-  const [showUnionMuncField, setShowUnionMuncField] = useState(true);
-
-  const divisionId = form.watch(`${prefix}.divisionId`);
-  const districtId = form.watch(`${prefix}.districtId`);
+export function AddressFields({
+  form,
+  prefix,
+  initialValues,
+}: AddressFieldsProps) {
+  // Watch all relevant fields for UI state
+  const divisionId = form.watch(`${prefix}.divisionId`) ?? "";
+  const districtId = form.watch(`${prefix}.districtId`) ?? "";
   const upazilaCityCorpId = form.watch(`${prefix}.upazilaCityCorpId`) ?? "";
-
   const unionMunicipalityId = form.watch(`${prefix}.unionMunicipalityId`) ?? "";
+  const upazilaId = form.watch(`${prefix}.upazilaId`) ?? "";
+  const cityCorporationId = form.watch(`${prefix}.cityCorporationId`) ?? "";
+
+  // Show union/municipality field when upazilaId is set (not city corporation).
+  // This correctly handles both manual selection and pre-fill via the hook.
+  const showUnionMuncField = !!upazilaId && !cityCorporationId;
 
   const {
     divisions,
@@ -53,83 +63,58 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
     loadingUpazila,
     loadingUnionMunicipality,
     loadingPostOffice,
-  } = useAddressDropdown(divisionId, districtId, upazilaCityCorpId);
+  } = useAddressDropdown(
+    divisionId,
+    districtId,
+    upazilaId,
+    prefix,
+    form,
+    initialValues,
+  );
 
-  useEffect(() => {
-    if (!upazilaCityCorpId) return;
+  // Manual selection handler for upazila/city-corp combo
+  const handleUpazilaCityCorpChange = (val: string) => {
+    form.setValue(`${prefix}.upazilaCityCorpId`, val, { shouldDirty: true });
+    form.setValue(`${prefix}.upazilaId`, "");
+    form.setValue(`${prefix}.cityCorporationId`, "");
+    form.setValue(`${prefix}.unionMunicipalityId`, "");
+    form.setValue(`${prefix}.unionParishadId`, "");
+    form.setValue(`${prefix}.municipalityId`, "");
+    form.setValue(`${prefix}.policeStationId`, "");
+    form.setValue(`${prefix}.postOfficeId`, "");
 
-    const findUpazilaOrCity = upazilas.find(
-      (u) => String(u.id) === String(upazilaCityCorpId),
-    ) as { id: string | number; type?: string } | undefined;
-
-    if (!findUpazilaOrCity?.type) return;
-
-    if (findUpazilaOrCity.type === "UPAZILA") {
-      form.setValue(`${prefix}.upazilaId`, String(findUpazilaOrCity.id), {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-      form.setValue(`${prefix}.cityCorporationId`, "", {
-        shouldValidate: true,
-      });
-      setShowUnionMuncField(true); // Show union/municipality for Upazila (required)
-    } else if (findUpazilaOrCity.type === "CITY_CORPORATION") {
-      form.setValue(
-        `${prefix}.cityCorporationId`,
-        String(findUpazilaOrCity.id),
-        { shouldDirty: true, shouldValidate: true },
-      );
-      form.setValue(`${prefix}.upazilaId`, "", {
-        shouldValidate: true,
-      });
-      setShowUnionMuncField(false); // Hide union/municipality for City Corporation (not required)
+    const found = upazilas.find((u) => String(u.id) === String(val));
+    if (found?.type === "UPAZILA") {
+      form.setValue(`${prefix}.upazilaId`, val, { shouldDirty: true });
+    } else if (found?.type === "CITY_CORPORATION") {
+      form.setValue(`${prefix}.cityCorporationId`, val, { shouldDirty: true });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [upazilaCityCorpId]);
+  };
 
-  useEffect(() => {
-    if (!unionMunicipalityId) return;
+  // Manual selection handler for union/municipality combo
+  const handleUnionMunicipalityChange = (val: string) => {
+    form.setValue(`${prefix}.unionMunicipalityId`, val, { shouldDirty: true });
+    form.setValue(`${prefix}.unionParishadId`, "");
+    form.setValue(`${prefix}.municipalityId`, "");
 
-    const findUnionMunicipality = unionsMunicipalities.find(
-      (u) => String(u.id) === String(unionMunicipalityId),
-    ) as { id: string | number; type?: string } | undefined;
-
-    if (!findUnionMunicipality?.type) return;
-
-    if (findUnionMunicipality.type === "UNION") {
-      form.setValue(`${prefix}.unionId`, String(findUnionMunicipality.id), {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-      form.setValue(`${prefix}.municipalityId`, "", {
-        shouldValidate: true,
-      });
-    } else if (findUnionMunicipality.type === "MUNICIPALITY") {
-      form.setValue(
-        `${prefix}.municipalityId`,
-        String(findUnionMunicipality.id),
-        { shouldDirty: true, shouldValidate: true },
-      );
-      form.setValue(`${prefix}.unionId`, "", {
-        shouldValidate: true,
-      });
+    const found = unionsMunicipalities.find(
+      (u) => String(u.id) === String(val),
+    );
+    if (found?.type === "UNION") {
+      form.setValue(`${prefix}.unionParishadId`, val, { shouldDirty: true });
+    } else if (found?.type === "MUNICIPALITY") {
+      form.setValue(`${prefix}.municipalityId`, val, { shouldDirty: true });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unionMunicipalityId]);
+  };
 
-  // Get error messages from the hidden fields
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors = form.formState.errors as any;
-  const upazilaError = errors?.[prefix]?.upazilaId?.message;
-  const cityCorporationError = errors?.[prefix]?.cityCorporationId?.message;
-  const unionError = errors?.[prefix]?.unionId?.message;
-  const municipalityError = errors?.[prefix]?.municipalityId?.message;
-
-  // Determine which error to show for Upazila/City Corporation field
-  const upazilaCityCorpError = upazilaError || cityCorporationError;
-
-  // Determine which error to show for Union/Municipality field
-  const unionMunicipalityError = unionError || municipalityError;
+  const upazilaCityCorpError =
+    errors?.[prefix]?.upazilaId?.message ||
+    errors?.[prefix]?.cityCorporationId?.message;
+  const unionMunicipalityError =
+    errors?.[prefix]?.unionParishadId?.message ||
+    errors?.[prefix]?.municipalityId?.message;
 
   const triggerClass =
     "relative h-10 w-full border-[#D0D5DD] bg-white text-foreground transition-all duration-300 max-sm:h-11";
@@ -152,6 +137,11 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
                   field.onChange(val);
                   form.setValue(`${prefix}.districtId`, "");
                   form.setValue(`${prefix}.upazilaCityCorpId`, "");
+                  form.setValue(`${prefix}.upazilaId`, "");
+                  form.setValue(`${prefix}.cityCorporationId`, "");
+                  form.setValue(`${prefix}.unionMunicipalityId`, "");
+                  form.setValue(`${prefix}.unionParishadId`, "");
+                  form.setValue(`${prefix}.municipalityId`, "");
                   form.setValue(`${prefix}.policeStationId`, "");
                   form.setValue(`${prefix}.postOfficeId`, "");
                 }}
@@ -197,6 +187,11 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
                 onValueChange={(val) => {
                   field.onChange(val);
                   form.setValue(`${prefix}.upazilaCityCorpId`, "");
+                  form.setValue(`${prefix}.upazilaId`, "");
+                  form.setValue(`${prefix}.cityCorporationId`, "");
+                  form.setValue(`${prefix}.unionMunicipalityId`, "");
+                  form.setValue(`${prefix}.unionParishadId`, "");
+                  form.setValue(`${prefix}.municipalityId`, "");
                   form.setValue(`${prefix}.policeStationId`, "");
                   form.setValue(`${prefix}.postOfficeId`, "");
                 }}
@@ -227,7 +222,7 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
           )}
         />
 
-        {/* Upazila/City Corporation */}
+        {/* Upazila / City Corporation */}
         <div>
           <FormField
             control={form.control}
@@ -235,18 +230,13 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-foreground gap-1 text-base">
-                  Upazila/City Corporation
-                  <span className="text-destructive"> *</span>
+                  Upazila/City Corporation{" "}
+                  <span className="text-destructive">*</span>
                 </FormLabel>
                 <Select
                   disabled={!districtId}
                   value={String(field.value || "")}
-                  onValueChange={(val) => {
-                    field.onChange(val);
-                    form.setValue(`${prefix}.policeStationId`, "");
-                    form.setValue(`${prefix}.postOfficeId`, "");
-                    form.setValue(`${prefix}.upazilaId`, "");
-                  }}
+                  onValueChange={handleUpazilaCityCorpChange}
                 >
                   <FormControl>
                     <SelectTrigger className={triggerClass}>
@@ -255,7 +245,8 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
                       ) : (
                         <SelectValue
                           placeholder={
-                            getLabel(upazilas, field.value) || "Select Upazila"
+                            getLabel(upazilas, field.value) ||
+                            "Select Upazila/City Corporation"
                           }
                         />
                       )}
@@ -269,7 +260,6 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
                     ))}
                   </SelectContent>
                 </Select>
-                {/* Show error from hidden fields */}
                 {upazilaCityCorpError && (
                   <p className="text-destructive text-sm font-medium">
                     {upazilaCityCorpError}
@@ -290,7 +280,7 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
           />
         </div>
 
-        {/* Union/Municipality */}
+        {/* Union / Municipality */}
         {showUnionMuncField && (
           <div>
             <FormField
@@ -299,17 +289,13 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-foreground gap-1 text-base">
-                    Union/Municipality
-                    <span className="text-destructive"> *</span>
+                    Union/Municipality{" "}
+                    <span className="text-destructive">*</span>
                   </FormLabel>
                   <Select
-                    disabled={!districtId}
+                    disabled={!upazilaId}
                     value={String(field.value || "")}
-                    onValueChange={(val) => {
-                      field.onChange(val);
-                      form.setValue(`${prefix}.policeStationId`, "");
-                      form.setValue(`${prefix}.postOfficeId`, "");
-                    }}
+                    onValueChange={handleUnionMunicipalityChange}
                   >
                     <FormControl>
                       <SelectTrigger className={triggerClass}>
@@ -333,7 +319,6 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
                       ))}
                     </SelectContent>
                   </Select>
-                  {/* Show error from hidden fields */}
                   {unionMunicipalityError && (
                     <p className="text-destructive text-sm font-medium">
                       {unionMunicipalityError}
@@ -345,7 +330,7 @@ export function AddressFields({ form, prefix }: AddressFieldsProps) {
             <Input
               className="hidden"
               type="text"
-              {...form.register(`${prefix}.unionId`)}
+              {...form.register(`${prefix}.unionParishadId`)}
             />
             <Input
               className="hidden"
