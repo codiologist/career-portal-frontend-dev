@@ -61,6 +61,9 @@ export default function ReferenceInfoForm() {
       await api.post("/user/profile/reference", data.references);
 
       toast.success("Reference information submitted successfully!");
+      toast.success(
+        `${user?.data?.candidateReferences.length !== 0 ? "Updated" : "Created"} Reference information submitted successfully!.`,
+      );
 
       // ✅ Refetch profile
       const profileRes = await api.get("/user/me");

@@ -219,8 +219,8 @@ export default function EducationCard({
         {/* Subject/Major/Group */}
         <SelectInput
           form={form}
-          name={`educations.${index}.subjectMajorGroup`}
-          label="Subject/Major/Group"
+          name={`educations.${index}.majorGroup`}
+          label="Major/Group"
           placeholder="Select subject"
           options={subjectOptions}
           required

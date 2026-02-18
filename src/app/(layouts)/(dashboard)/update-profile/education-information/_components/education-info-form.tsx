@@ -41,7 +41,7 @@ export default function EducationInfoForm() {
         levelOfEducation: edu.levelOfEducation,
         degreeName: edu.degreeName,
         board: edu.board ?? null,
-        subjectMajorGroup: edu.subjectMajorGroup,
+        subjectMajorGroup: edu.majorGroup,
         instituteName: edu.instituteName,
         resultType: edu.resultType,
         yearOfPassing: edu.yearOfPassing,

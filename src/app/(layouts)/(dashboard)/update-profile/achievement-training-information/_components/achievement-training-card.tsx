@@ -1,13 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AchievementInfoFormValues } from "@/schemas/achievement.schema";
+
 import {
   Award,
   Building2,
@@ -17,9 +17,10 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
+
 import Image from "next/image";
-import { useRef, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
+
 import {
   SelectInput,
   SelectOption,
@@ -35,11 +36,10 @@ interface AchievementCardProps {
 }
 
 const acheievementsTypeOptions: SelectOption[] = [
-  { label: "Professional Certification", value: "First Division/Class" },
-  { label: "Training", value: "Second Division/Class" },
+  { label: "Professional Certification", value: "PROFESSIONAL_CERTIFICATION" },
+  { label: "Training", value: "TRAINING" },
 ];
 
-// Generate year options from current year back to 1970
 const currentYear = new Date().getFullYear();
 const yearOptions: SelectOption[] = Array.from(
   { length: currentYear - 1970 + 1 },
@@ -56,56 +56,103 @@ export default function AchievementTrainingCard({
   canRemove,
 }: AchievementCardProps) {
   const [preview, setPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [certificateError, setCertificateError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Read Zod validation errors from form state (set on submit)
+  // Register the file field so react-hook-form tracks it
+  useEffect(() => {
+    form.register(`achievements.${index}.certificate`);
+  }, [form, index]);
+
+  // When the form is populated from the API (editing mode), show the saved
+  // certificate as the initial preview so the user knows a file already exists.
+  useEffect(() => {
+    const existingUrl = form.getValues(
+      `achievements.${index}.existingCertificateUrl`,
+    );
+    if (existingUrl && !preview) {
+      // Compose the full URL; if the path is already absolute, use it as-is.
+      const fullUrl = existingUrl.startsWith("http")
+        ? existingUrl
+        : `${process.env.NEXT_PUBLIC_API_URL}/${existingUrl}`;
+      setPreview(fullUrl);
+      console.log(fullUrl);
+    }
+    // Only run once when the field value is first available
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.getValues(`achievements.${index}.existingCertificateUrl`)]);
+
   const zodCertificateError = form.formState.errors?.achievements?.[index]
     ?.certificate?.message as string | undefined;
-  // Show local error (from handleFileChange) or Zod error (from form submit)
+
   const displayError = certificateError || zodCertificateError || null;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ["image/jpeg", "image/jpg", "image/png"];
-      if (!validTypes.includes(file.type)) {
-        setCertificateError("Only .jpeg, .jpg, and .png files are accepted");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
-      }
+    if (!file) return;
 
-      // Validate file size
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        setCertificateError("Max file size is 5MB");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
-      }
+    const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+    const maxSize = 5 * 1024 * 1024;
 
-      // Clear previous errors and set value
-      setCertificateError(null);
-      form.setValue(`achievements.${index}.certificate`, file, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result as string);
-      reader.readAsDataURL(file);
+    if (!validTypes.includes(file.type)) {
+      setCertificateError("Only .jpeg, .jpg, and .png files are accepted");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
     }
+
+    if (file.size > maxSize) {
+      setCertificateError("Max file size is 5MB");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    setCertificateError(null);
+
+    form.setValue(`achievements.${index}.certificate`, file, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+
+    // Clear the existing URL so the schema knows a new file replaces it
+    form.setValue(`achievements.${index}.existingCertificateUrl`, undefined);
+
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
   const removeFile = () => {
     form.setValue(`achievements.${index}.certificate`, undefined, {
       shouldValidate: true,
+      shouldDirty: true,
     });
+
+    // Also clear the saved URL so the schema re-enforces the required check
+    form.setValue(`achievements.${index}.existingCertificateUrl`, undefined, {
+      shouldValidate: true,
+    });
+
+    form.clearErrors(`achievements.${index}.certificate`);
+
     setPreview(null);
     setCertificateError(null);
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
+
+  // Derive the display name for the preview footer
+  const newFile = form.getValues(`achievements.${index}.certificate`);
+  const existingUrl = form.getValues(
+    `achievements.${index}.existingCertificateUrl`,
+  );
+  const previewLabel =
+    newFile instanceof File
+      ? newFile.name
+      : existingUrl
+        ? existingUrl.split("/").pop()
+        : "Certificate";
 
   return (
     <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
@@ -119,7 +166,7 @@ export default function AchievementTrainingCard({
             type="button"
             variant="outline"
             size="sm"
-            className="border-red-600 text-sm font-semibold text-red-600! hover:bg-red-600 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+            className="border-red-600 text-sm font-semibold text-red-600 hover:bg-red-600 hover:text-white"
             onClick={onRemove}
           >
             <Trash2 className="mr-1 h-4 w-4" />
@@ -130,7 +177,6 @@ export default function AchievementTrainingCard({
 
       {/* Form Grid */}
       <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* Level of Education */}
         <SelectInput
           form={form}
           name={`achievements.${index}.achievementType`}
@@ -143,16 +189,16 @@ export default function AchievementTrainingCard({
         <TextInput
           form={form}
           name={`achievements.${index}.title`}
-          label="Title "
-          placeholder="e.g. Developing Back-End Apps with Node.js and Express"
+          label="Title"
+          placeholder="e.g. Node.js Certification"
           required
           icon={<Award className="size-5" />}
         />
 
         <TextInput
           form={form}
-          name={`achievements.${index}.organization`}
-          label="Organization Name "
+          name={`achievements.${index}.organizationName`}
+          label="Organization Name"
           placeholder="Coursera"
           required
           icon={<Building2 className="size-5" />}
@@ -160,9 +206,9 @@ export default function AchievementTrainingCard({
 
         <TextInput
           form={form}
-          name={`achievements.${index}.website`}
+          name={`achievements.${index}.url`}
           label="Website"
-          placeholder="e.g. https://www.coursera.org/"
+          placeholder="https://example.com"
           icon={<Globe className="size-5" />}
         />
 
@@ -170,12 +216,11 @@ export default function AchievementTrainingCard({
           form={form}
           name={`achievements.${index}.location`}
           label="Location"
-          placeholder="e.g. Online, New York, etc."
+          placeholder="Online"
           required
           icon={<MapPin className="size-5" />}
         />
 
-        {/* Year of Passing */}
         <SelectInput
           form={form}
           name={`achievements.${index}.year`}
@@ -189,76 +234,75 @@ export default function AchievementTrainingCard({
           <TextAreaInput
             form={form}
             name={`achievements.${index}.description`}
-            className="h-40! text-base!"
-            label="Description of Achievements"
-            placeholder="Short details of the achievement"
+            className="h-40"
+            label="Description"
+            placeholder="Short details"
             required
             icon={<TextInitial />}
           />
         </div>
 
-        {/* Certificate Upload */}
+        {/* Upload */}
         <div className="flex flex-col gap-2">
-          <Label className="mb-0! gap-1 text-base font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            Certificate Upload
-            <span className="text-destructive">*</span>
+          <Label className="text-base font-medium">
+            Certificate Upload{" "}
+            {/* Mark as required only when no existing certificate is saved */}
+            {!existingUrl && <span className="text-destructive">*</span>}
           </Label>
-          <div className="mt-0">
-            <Label
-              htmlFor={`certificate-${index}`}
-              className={cn(
-                "flex h-10 cursor-pointer items-center gap-2 rounded-sm border px-3 transition-colors max-sm:h-11",
-                displayError
-                  ? "border-destructive bg-destructive/5"
-                  : "bg-card hover:border-foreground/40 border-[#D0D5DD]",
-              )}
-            >
-              <Upload className="text-muted-foreground h-4 w-4" />
-              <span className="text-muted-foreground text-sm">
-                JPEG, JPG, PNG (Max 5MB)
-              </span>
-              <Input
-                ref={fileInputRef}
-                id={`certificate-${index}`}
-                type="file"
-                accept=".jpeg,.jpg,.png"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </Label>
-          </div>
+
+          <Label
+            htmlFor={`certificate-${index}`}
+            className={cn(
+              "flex h-10 cursor-pointer items-center gap-2 rounded-sm border px-3",
+              displayError
+                ? "border-destructive bg-destructive/5"
+                : "hover:border-foreground/40 border-[#D0D5DD]",
+            )}
+          >
+            <Upload className="h-4 w-4" />
+            <span className="text-sm">
+              {existingUrl && !(newFile instanceof File)
+                ? "Replace certificate (JPEG, JPG, PNG)"
+                : "JPEG, JPG, PNG (Max 5MB)"}
+            </span>
+            <Input
+              ref={fileInputRef}
+              id={`certificate-${index}`}
+              type="file"
+              accept=".jpeg,.jpg,.png"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </Label>
+
           {displayError && (
-            <p className="text-destructive text-[0.8rem] font-medium">
-              {displayError}
-            </p>
+            <p className="text-destructive text-sm">{displayError}</p>
           )}
         </div>
       </div>
 
+      {/* Preview — shown for both newly uploaded files and existing documents */}
       {preview && (
         <div className="mt-4">
-          <div className="relative h-auto w-40 text-center">
-            <div>
-              <Image
-                src={preview || "/placeholder.svg"}
-                alt="Certificate preview"
-                width={32}
-                height={32}
-                className="relative mx-auto h-auto w-40 rounded border object-cover p-1"
-                unoptimized
-              />
-            </div>
+          <div className="relative w-40">
+            <Image
+              src={preview}
+              alt="Certificate preview"
+              width={160}
+              height={120}
+              className="rounded border object-cover"
+              unoptimized
+            />
             <Button
+              type="button"
               onClick={removeFile}
-              className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-600/80 p-1 hover:bg-red-700"
+              className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-600 p-1"
             >
               <Trash2 className="h-4 w-4 text-white" />
             </Button>
           </div>
-          <p className="text-dark-blue-800 mt-3 text-sm font-bold">
-            {form.getValues(`achievements.${index}.certificate`)?.name ||
-              "Certificate"}
-          </p>
+
+          <p className="mt-2 text-sm font-semibold">{previewLabel}</p>
         </div>
       )}
     </div>

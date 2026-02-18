@@ -69,7 +69,9 @@ export function ProfileImageUploader({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { user } = useAuth();
-  const avatar = user?.data?.documents?.find((doc) => doc.type === "AVATAR");
+  const avatar = user?.data?.documents?.find(
+    (doc) => String(doc.type) === "AVATAR",
+  );
 
   useEffect(() => {
     if (avatar) {

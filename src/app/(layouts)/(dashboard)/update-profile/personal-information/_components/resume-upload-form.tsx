@@ -63,7 +63,8 @@ export function ResumeUploadForm() {
   });
 
   const resumePath = (user as TGetMyProfileResponse)?.data?.documents?.find(
-    (doc) => doc.type === "RESUME",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (doc) => doc.type === ("RESUME" as any),
   );
 
   useEffect(() => {

@@ -6,26 +6,23 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const achievementEntrySchema = z
   .object({
     achievementType: z.string().min(1, "Achievement Type is required"),
-    title: z.string().min(10, "Title is required"),
-    organization: z.string().min(10, "Organization name is required"),
-    website: z.string().optional(),
-    location: z.string().min(10, "Location is required"),
+    title: z.string().min(5, "Title is required"),
+    organizationName: z.string().min(2, "Organization name is required"),
+    url: z.string().optional(),
+    location: z.string().min(2, "Location is required"),
     year: z.string().min(4, "Year is required"),
     description: z.string().min(10, "Description is required"),
     certificate: z.any(),
+    // Populated when editing an existing achievement that already has a saved document
+    existingCertificateUrl: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    // console.log("Log From Schema", data);
+    // If there is already a saved certificate URL (editing mode) and no new file
+    // has been chosen, skip file validation — the existing document is kept.
+    const hasExisting = !!data.existingCertificateUrl;
 
-    // Certificate is required and must be a File
-    if (!data.certificate || !(data.certificate instanceof File)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Certificate is required",
-        path: ["certificate"],
-      });
-    } else {
-      // Validate file size
+    if (data.certificate instanceof File) {
+      // Validate the newly selected file
       if (data.certificate.size > MAX_FILE_SIZE) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -33,7 +30,6 @@ const achievementEntrySchema = z
           path: ["certificate"],
         });
       }
-      // Validate file type
       if (!ACCEPTED_IMAGE_TYPES.includes(data.certificate.type)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -41,13 +37,20 @@ const achievementEntrySchema = z
           path: ["certificate"],
         });
       }
+    } else if (!hasExisting) {
+      // No file and no existing URL — certificate is required
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Certificate is required",
+        path: ["certificate"],
+      });
     }
   });
 
 export const achievementInfoFormSchema = z.object({
   achievements: z
     .array(achievementEntrySchema)
-    .min(1, "At least one  entry is required"),
+    .min(1, "At least one entry is required"),
 });
 
 export type AchievementInfoFormValues = z.infer<
@@ -57,10 +60,11 @@ export type AchievementInfoFormValues = z.infer<
 export const defaultAchievement = {
   achievementType: "",
   title: "",
-  organization: "",
-  website: "",
+  organizationName: "",
+  url: "",
   location: "",
   year: "",
   description: "",
-  certificate: null,
+  certificate: undefined as File | undefined,
+  existingCertificateUrl: undefined as string | undefined,
 };

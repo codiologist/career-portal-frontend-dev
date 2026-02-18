@@ -66,7 +66,9 @@ export function ExperienceInfoForm() {
         "/user/profile/experience",
         payload.experiences,
       );
-      toast.success("Experience information submitted successfully!");
+      toast.success(
+        `${user?.data?.candidateExperiences.length !== 0 ? "Updated" : "Created"} Experience information submitted successfully!.`,
+      );
 
       // ✅ Refetch profile
       const profileRes = await api.get("/user/me");

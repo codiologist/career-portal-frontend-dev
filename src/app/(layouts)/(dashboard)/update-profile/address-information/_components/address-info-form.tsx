@@ -121,7 +121,9 @@ export function AddressInfoForm() {
     );
     try {
       await api.post("/user/profile/address", payload);
-      toast.success("Address information submitted successfully!");
+      toast.success(
+        `${user?.data?.addresses ? "Updated" : "Created"} Address information submitted successfully!.`,
+      );
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to submit address information.");

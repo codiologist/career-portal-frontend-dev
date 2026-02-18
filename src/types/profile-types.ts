@@ -1,5 +1,6 @@
 /* ---------- Root API Response ---------- */
 
+import { CandidateAchievement } from "./achievement-types";
 import { TUserAddress } from "./address-types";
 import { TUserDocument } from "./document-types";
 import { CandidateExperiences } from "./experience-types";
@@ -26,6 +27,7 @@ export interface TUserData {
   documents: TUserDocument[];
   candidateExperiences: CandidateExperiences;
   candidateReferences: CandidateReferences; // ✅ FIXED
+  candidateAchievements: CandidateAchievement[]; // ✅ FIXED
   addresses: TUserAddress[];
 }
 

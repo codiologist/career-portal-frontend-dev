@@ -18,7 +18,9 @@ interface IntroCardProps {
 const IntroCard = ({ user, documents }: IntroCardProps) => {
   const [resumeURL, setResumeURL] = useState<string | null>(null);
 
-  const resume = documents?.find((doc: TUserDocument) => doc.type === "RESUME");
+  const resume = documents?.find(
+    (doc: TUserDocument) => (doc.type as unknown as string) === "RESUME",
+  );
 
   useEffect(() => {
     if (resume) {

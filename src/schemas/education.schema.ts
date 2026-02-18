@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 500 * 1024; // 500KB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const HIDE_MARKS: string[] = ["Appeared", "Pass"];
 
@@ -9,7 +9,7 @@ const educationEntrySchema = z
     levelOfEducation: z.string().min(1, "Level of education is required"),
     degreeName: z.string().min(1, "Degree name is required"),
     board: z.string().optional(),
-    subjectMajorGroup: z.string().min(1, "Subject/Major/Group is required"),
+    majorGroup: z.string().min(1, "Major/Group is required"),
     instituteName: z.string().min(1, "Institute name is required"),
     resultType: z.string().min(1, "Result type is required"),
     totalMarksCGPA: z.string().optional(),
@@ -41,6 +41,13 @@ const educationEntrySchema = z
         });
       }
     }
+    if (data.resultType === "Appeared" || data.resultType === "Pass") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Total marks is not allowed for Appeared/Pass",
+        path: ["totalMarksCGPA"],
+      });
+    }
 
     // Certificate is required and must be a File
     if (!data.certificate || !(data.certificate instanceof File)) {
@@ -54,7 +61,7 @@ const educationEntrySchema = z
       if (data.certificate.size > MAX_FILE_SIZE) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Max file size is 5MB",
+          message: "Max file size is 500KB",
           path: ["certificate"],
         });
       }
@@ -81,7 +88,7 @@ export const defaultEducation = {
   levelOfEducation: "",
   degreeName: "",
   board: "",
-  subjectMajorGroup: "",
+  majorGroup: "",
   instituteName: "",
   resultType: "",
   totalMarksCGPA: "",

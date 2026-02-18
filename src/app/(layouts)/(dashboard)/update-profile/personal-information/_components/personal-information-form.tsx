@@ -182,7 +182,9 @@ const PersonalInformationForm = () => {
     };
     try {
       const res = await api.post("/user/profile/personal", payload);
-      toast.success("Personal Information updated successfully.");
+      toast.success(
+        `${user?.data?.candidatePersonal !== null ? "Updated" : "Created"} Personal information submitted successfully!.`,
+      );
       console.log("Profile Response", res.data);
     } catch (error) {
       console.error("Error updating personal information:", error);

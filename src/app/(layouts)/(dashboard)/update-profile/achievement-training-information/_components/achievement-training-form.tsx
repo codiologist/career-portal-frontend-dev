@@ -8,14 +8,19 @@ import {
   defaultAchievement,
 } from "@/schemas/achievement.schema";
 
+import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/axiosInstance";
+import { TUserData } from "@/types/profile-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, PlusCircle, Send } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import AchievementTrainingCard from "./achievement-training-card";
 
 export default function AchievementTrainingForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
 
   const form = useForm<AchievementInfoFormValues>({
     resolver: zodResolver(achievementInfoFormSchema),
@@ -29,51 +34,74 @@ export default function AchievementTrainingForm() {
     name: "achievements",
   });
 
+  useEffect(() => {
+    if (!user) return;
+
+    const rawAchievements = (user?.data as TUserData)?.candidateAchievements;
+
+    const achievements =
+      rawAchievements?.length > 0
+        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          rawAchievements.map((item: any) => ({
+            achievementType: item.type ?? "",
+            title: item.title ?? "",
+            organizationName: item.organizationName ?? "",
+            url: item.url ?? "",
+            location: item.location ?? "",
+            // API returns year as a number; the form expects a string
+            year: item.year != null ? String(item.year) : "",
+            description: item.description ?? "",
+            // No File object for existing records; keep certificate undefined
+            certificate: undefined,
+            // Store the path of the first associated document so the card can
+            // show a preview and the schema skips the "file required" check
+            existingCertificateUrl: item.documents?.[0]?.path ?? undefined,
+          }))
+        : [{ ...defaultAchievement }];
+
+    form.reset({ achievements });
+  }, [user, form]);
+
   const onSubmit = async (data: AchievementInfoFormValues) => {
     setIsSubmitting(true);
 
     try {
-      console.log("Education Form Data:", data);
-
       const formData = new FormData();
 
-      // 1️⃣ Remove certificate from JSON payload
       const achievementsPayload = data.achievements.map((achievement) => ({
         type: achievement.achievementType,
         title: achievement.title,
-        organization: achievement.organization,
-        website: achievement.website ?? null,
+        organizationName: achievement.organizationName,
+        url: achievement.url ?? null,
         location: achievement.location,
-        year: achievement.year,
+        year: Number(achievement.year),
         description: achievement.description,
+        // Let the backend know whether an existing document should be kept
+        existingCertificateUrl: achievement.existingCertificateUrl ?? null,
       }));
 
-      // 2️⃣ Append JSON object
-      formData.append("achievements", JSON.stringify(achievementsPayload));
-
-      // 3️⃣ Append certificates separately
-      data.achievements.forEach((achievement, index) => {
+      // Append newly selected certificate files using the same "files" key.
+      // Entries that kept their existing document will not append anything here.
+      data.achievements.forEach((achievement) => {
         if (achievement.certificate instanceof File) {
-          formData.append(`certificates[${index}]`, achievement.certificate);
+          formData.append("files", achievement.certificate);
         }
       });
 
-      const response = await fetch("/api/update-profile", {
-        method: "POST",
-        body: formData,
+      formData.append("data", JSON.stringify(achievementsPayload));
+
+      await api.post("/user/profile/achievement", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to submit form");
-      }
-
-      const result = await response.json();
-      console.log("Server Response:", result);
-
-      alert("Education details submitted successfully!");
+      toast.success(
+        `${user?.data?.candidateAchievements.length !== 0 ? "Updated" : "Created"} achievement information successfully.`,
+      );
     } catch (error) {
       console.error("Submission error:", error);
-      alert("Failed to submit. Please try again.");
+      toast.error("Upload failed.");
     } finally {
       setIsSubmitting(false);
     }
@@ -82,8 +110,13 @@ export default function AchievementTrainingForm() {
   return (
     <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-4xl p-0 xl:border xl:p-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Education Sections */}
+        <form
+          onSubmit={form.handleSubmit(onSubmit, (err) => {
+            console.log("Validation Errors:", err);
+          })}
+          className="space-y-6"
+        >
+          {/* Achievement Sections */}
           <div className="space-y-5">
             {fields.map((field, index) => (
               <AchievementTrainingCard
