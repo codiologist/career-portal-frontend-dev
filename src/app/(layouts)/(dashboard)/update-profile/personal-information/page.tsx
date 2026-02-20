@@ -8,9 +8,13 @@ const PersonalInfoPage = () => {
       <section>
         <PersonalInformationForm />
       </section>
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <ResumeUploadForm />
-        <SignatureUploadForm />
+      <section>
+        <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-2xl p-0 xl:border xl:p-4">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            <ResumeUploadForm />
+            <SignatureUploadForm />
+          </div>
+        </div>
       </section>
     </div>
   );

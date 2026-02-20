@@ -60,7 +60,6 @@ export default function ReferenceInfoForm() {
     try {
       await api.post("/user/profile/reference", data.references);
 
-      toast.success("Reference information submitted successfully!");
       toast.success(
         `${user?.data?.candidateReferences.length !== 0 ? "Updated" : "Created"} Reference information submitted successfully!.`,
       );
@@ -94,7 +93,7 @@ export default function ReferenceInfoForm() {
   };
 
   return (
-    <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-4xl p-0 xl:border xl:p-6">
+    <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-2xl p-0 xl:border xl:p-4">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-5">

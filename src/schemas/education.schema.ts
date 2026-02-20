@@ -6,42 +6,46 @@ const HIDE_MARKS: string[] = ["Appeared", "Pass"];
 
 const educationEntrySchema = z
   .object({
-    levelOfEducation: z.string().min(1, "Level of education is required"),
-    degreeName: z.string().min(1, "Degree name is required"),
-    board: z.string().optional(),
-    majorGroup: z.string().min(1, "Major/Group is required"),
+    levelOfEducationId: z.string().min(1, "Level of education is required"),
+    degreeNameId: z.string().min(1, "Degree name is required"),
+    educationBoardId: z.string().optional(),
+    majorGroupId: z.string().min(1, "Major/Group is required"),
+    subjectName: z.string().min(1, "Subject name is required"),
     instituteName: z.string().min(1, "Institute name is required"),
-    resultType: z.string().min(1, "Result type is required"),
+    resultTypeId: z.string().min(1, "Result type is required"),
     totalMarksCGPA: z.string().optional(),
     yearOfPassing: z.string().min(1, "Year of passing is required"),
     certificate: z.any(),
   })
   .superRefine((data, ctx) => {
     // console.log("Log From Schema", data);
-    // Board is required when degree is SSC or HSC
-    if (data.degreeName === "SSC" || data.degreeName === "HSC") {
-      if (!data.board || data.board.length === 0) {
+    // Education Board is required when degree is SSC or HSC
+    if (
+      data.levelOfEducationId === "Secondary" ||
+      data.levelOfEducationId === "Higher Secondary"
+    ) {
+      if (!data.educationBoardId || data.educationBoardId.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Board is required for SSC/HSC",
-          path: ["board"],
+          message: "Education Board is required for SSC/HSC",
+          path: ["educationBoardId"],
         });
       }
     }
-    const hideMarks = HIDE_MARKS.includes(data.resultType);
+    const hideMarks = HIDE_MARKS.includes(data.resultTypeId);
     if (!hideMarks) {
       if (!data.totalMarksCGPA || data.totalMarksCGPA.trim() === "") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message:
-            data.resultType === "Grade"
+            data.resultTypeId === "Grade"
               ? "CGPA is required"
               : "Total marks is required",
           path: ["totalMarksCGPA"],
         });
       }
     }
-    if (data.resultType === "Appeared" || data.resultType === "Pass") {
+    if (data.resultTypeId === "Appeared" || data.resultTypeId === "Pass") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Total marks is not allowed for Appeared/Pass",
@@ -85,12 +89,13 @@ export const educationInfoFormSchema = z.object({
 export type EducationInfoFormValues = z.infer<typeof educationInfoFormSchema>;
 
 export const defaultEducation = {
-  levelOfEducation: "",
-  degreeName: "",
-  board: "",
-  majorGroup: "",
+  levelOfEducationId: "",
+  degreeNameId: "",
+  educationBoardId: "",
+  majorGroupId: "",
+  subjectName: "",
   instituteName: "",
-  resultType: "",
+  resultTypeId: "",
   totalMarksCGPA: "",
   yearOfPassing: "",
   certificate: null,

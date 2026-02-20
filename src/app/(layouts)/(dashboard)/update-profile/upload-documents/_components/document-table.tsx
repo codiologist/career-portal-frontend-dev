@@ -42,7 +42,7 @@ const DocumentTable = () => {
 
   return (
     <div className="mt-10">
-      <ProfileContentCard>
+      <ProfileContentCard className="border-border bg-card relative rounded-lg border p-5 shadow-none md:p-6">
         <Table>
           <TableHeader>
             <TableRow>

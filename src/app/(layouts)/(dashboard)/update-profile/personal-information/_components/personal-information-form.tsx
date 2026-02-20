@@ -192,12 +192,12 @@ const PersonalInformationForm = () => {
   }
   return (
     <div className="space-y-10">
-      <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-4xl p-0 xl:border xl:p-6">
+      <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-2xl p-0 xl:border xl:p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="space-y-10">
               <section>
-                <ProfileContentCard>
+                <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
                   <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
                     Career Objective
                   </h1>
@@ -220,11 +220,11 @@ const PersonalInformationForm = () => {
                       icon={<TextInitial />}
                     />
                   </div>
-                </ProfileContentCard>
+                </div>
               </section>
 
               <section>
-                <ProfileContentCard>
+                <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
                   <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
                     Personal Information
                   </h1>
@@ -379,11 +379,11 @@ const PersonalInformationForm = () => {
                       icon={<IdCard className="size-6.5" />}
                     />
                   </div>
-                </ProfileContentCard>
+                </div>
               </section>
 
               <section className="flex flex-col gap-6 xl:flex-row">
-                <ProfileContentCard>
+                <ProfileContentCard className="border-border bg-card relative rounded-lg border p-5 shadow-none md:p-6">
                   <h1 className="text-dark-blue-700 mb-2 text-lg font-bold xl:text-2xl">
                     Skills
                   </h1>
@@ -411,7 +411,7 @@ const PersonalInformationForm = () => {
                   />
                 </ProfileContentCard>
 
-                <ProfileContentCard>
+                <ProfileContentCard className="border-border bg-card relative rounded-lg border p-5 shadow-none md:p-6">
                   <h1 className="text-dark-blue-700 mb-2 text-lg font-bold xl:text-2xl">
                     Interest
                   </h1>
@@ -441,7 +441,7 @@ const PersonalInformationForm = () => {
               </section>
 
               <section>
-                <ProfileContentCard>
+                <ProfileContentCard className="border-border bg-card relative rounded-lg border p-5 shadow-none md:p-6">
                   <div className="space-y-6">
                     <div>
                       <h1 className="text-dark-blue-700 mb-1 text-lg font-bold xl:text-xl">

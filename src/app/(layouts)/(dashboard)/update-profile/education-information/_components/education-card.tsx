@@ -61,9 +61,9 @@ export default function EducationCard({
   // Show local error (from handleFileChange) or Zod error (from form submit)
   const displayError = certificateError || zodCertificateError || null;
 
-  const watchLevel = form.watch(`educations.${index}.levelOfEducation`);
-  const watchDegree = form.watch(`educations.${index}.degreeName`);
-  const watchResultType = form.watch(`educations.${index}.resultType`);
+  const watchLevel = form.watch(`educations.${index}.levelOfEducationId`);
+  const watchDegree = form.watch(`educations.${index}.degreeNameId`);
+  const watchResultType = form.watch(`educations.${index}.resultTypeId`);
   const isAppearedOrPass =
     watchResultType === "Pass" || watchResultType === "Appeared";
 
@@ -84,15 +84,18 @@ export default function EducationCard({
     })) || [];
 
   // Get board options (from Secondary data which has boards)
-  const boardData = education_data.find((item) => item.education_board);
+  const educationBoardData = education_data.find(
+    (item) => item.education_board,
+  );
   const boardOptions: SelectOption[] =
-    boardData?.education_board?.map((b) => ({
+    educationBoardData?.education_board?.map((b) => ({
       label: b.name,
       value: b.name,
     })) || [];
 
   // Show board when degree is SSC or HSC
-  const showBoard = watchDegree === "SSC" || watchDegree === "HSC";
+  const showBoard =
+    watchLevel === "Secondary" || watchLevel === "Higher Secondary";
 
   useEffect(() => {
     setMounted(true);
@@ -100,14 +103,14 @@ export default function EducationCard({
 
   // Reset dependent fields when level changes
   useEffect(() => {
-    form.setValue(`educations.${index}.degreeName`, "");
-    form.setValue(`educations.${index}.board`, "");
+    form.setValue(`educations.${index}.degreeNameId`, "");
+    form.setValue(`educations.${index}.educationBoardId`, "");
   }, [watchLevel, form, index]);
 
   // Reset board when degree changes
   useEffect(() => {
     if (!showBoard) {
-      form.setValue(`educations.${index}.board`, "");
+      form.setValue(`educations.${index}.educationBoardId`, "");
     }
   }, [watchDegree, showBoard, form, index]);
 
@@ -189,7 +192,7 @@ export default function EducationCard({
         {/* Level of Education */}
         <SelectInput
           form={form}
-          name={`educations.${index}.levelOfEducation`}
+          name={`educations.${index}.levelOfEducationId`}
           label="Level of Education"
           placeholder="Select level"
           options={levelOptions}
@@ -198,7 +201,7 @@ export default function EducationCard({
         {/* Degree Name */}
         <SelectInput
           form={form}
-          name={`educations.${index}.degreeName`}
+          name={`educations.${index}.degreeNameId`}
           label="Degree Name"
           placeholder="Select degree"
           options={degreeOptions}
@@ -209,8 +212,8 @@ export default function EducationCard({
         {showBoard && (
           <SelectInput
             form={form}
-            name={`educations.${index}.board`}
-            label="Board"
+            name={`educations.${index}.educationBoardId`}
+            label="Education Board"
             placeholder="Select board"
             options={boardOptions}
             required
@@ -219,10 +222,18 @@ export default function EducationCard({
         {/* Subject/Major/Group */}
         <SelectInput
           form={form}
-          name={`educations.${index}.majorGroup`}
+          name={`educations.${index}.majorGroupId`}
           label="Major/Group"
           placeholder="Select subject"
           options={subjectOptions}
+          required
+        />
+        {/* Institute Name */}
+        <TextInput
+          form={form}
+          name={`educations.${index}.subjectName`}
+          label="Subject Name"
+          placeholder="Enter subject name"
           required
         />
         {/* Institute Name */}
@@ -236,7 +247,7 @@ export default function EducationCard({
         {/* Result Type */}
         <SelectInput
           form={form}
-          name={`educations.${index}.resultType`}
+          name={`educations.${index}.resultTypeId`}
           label="Result Type"
           placeholder="Select result type"
           options={resultTypeOptions}
@@ -247,9 +258,11 @@ export default function EducationCard({
           <TextInput
             form={form}
             name={`educations.${index}.totalMarksCGPA`}
-            label={watchResultType === "Grade" ? "CGPA" : "Total Marks / CGPA"}
+            label={watchResultType === "Grade" ? "GPA/CGPA" : "Total Marks(%)"}
             placeholder={
-              watchResultType === "Grade" ? "Enter CGPA" : "Enter Total Marks"
+              watchResultType === "Grade"
+                ? "Enter GPA/CGPA"
+                : "Enter Total Marks"
             }
             required
           />

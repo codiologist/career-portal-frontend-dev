@@ -2,6 +2,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { TUserData } from "@/types/profile-types";
 import { useEffect, useState } from "react";
+import AchievementCard from "./achievement-card";
 import CareerObjectivCard from "./career-objective-card";
 import ContactInfoCard from "./contact-info-card";
 import ExperienceInfoCard from "./experience-info-card";
@@ -39,7 +40,7 @@ const ProfileDetails = () => {
           <ExperienceInfoCard experiences={user?.data?.candidateExperiences} />
           {/* <EducationalInfoCard /> */}
           <SkillsInfoCard skills={user?.data?.candidatePersonal?.skills} />
-          {/* <AchievementCard /> */}
+          <AchievementCard achievements={user?.data?.candidateAchievements} />
           <ReferenceInfo references={user?.data?.candidateReferences} />
           {/* <OtherDocumentsCard /> */}
         </div>
@@ -49,8 +50,7 @@ const ProfileDetails = () => {
             phone={user?.data?.candidatePersonal?.mobileNo}
             alternatePhone={user?.data?.candidatePersonal?.alternatePhone}
             email={user?.data?.email}
-            //  presentAddress={user?.data?.candidatePersonal?.presentAddress}
-            //  permanentAddress={user?.data?.candidatePersonal?.permanentAddress}
+            addresses={user?.data?.addresses}
           />
           <PersonalInfoCard
             fatherName={user?.data?.candidatePersonal?.fatherName}

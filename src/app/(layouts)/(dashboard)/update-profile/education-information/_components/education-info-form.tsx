@@ -38,12 +38,13 @@ export default function EducationInfoForm() {
 
       // 1️⃣ Remove certificate from JSON payload
       const educationsPayload = data.educations.map((edu) => ({
-        levelOfEducation: edu.levelOfEducation,
-        degreeName: edu.degreeName,
-        board: edu.board ?? null,
-        subjectMajorGroup: edu.majorGroup,
+        levelOfEducationId: edu.levelOfEducationId,
+        degreeNameId: edu.degreeNameId,
+        educationBoardId: edu.educationBoardId ?? null,
+        majorGroupId: edu.majorGroupId,
+        subjectName: edu.subjectName,
         instituteName: edu.instituteName,
-        resultType: edu.resultType,
+        resultTypeId: edu.resultTypeId,
         yearOfPassing: edu.yearOfPassing,
       }));
 
@@ -79,9 +80,14 @@ export default function EducationInfoForm() {
   };
 
   return (
-    <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-4xl p-0 xl:border xl:p-6">
+    <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-2xl p-0 xl:border xl:p-4">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit, (err) => {
+            console.log("Validation Errors:", err);
+          })}
+          className="space-y-6"
+        >
           {/* Education Sections */}
           <div className="space-y-5">
             {fields.map((field, index) => (

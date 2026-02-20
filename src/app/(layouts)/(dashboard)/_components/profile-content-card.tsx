@@ -25,7 +25,6 @@ const ProfileContentCard = ({
             {title}
           </h1>
         )}
-
         {children}
       </CardContent>
     </Card>

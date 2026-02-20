@@ -104,7 +104,7 @@ const DocumentUploadForm = () => {
   };
 
   return (
-    <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-4xl p-0 xl:border xl:p-6">
+    <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-2xl p-0 xl:border xl:p-4">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit, (err) => {
@@ -112,7 +112,7 @@ const DocumentUploadForm = () => {
           })}
           className="space-y-6"
         >
-          <ProfileContentCard>
+          <ProfileContentCard className="border-border bg-card relative rounded-lg border p-5 shadow-none md:p-6">
             <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
               Upload Your Documents
             </h1>

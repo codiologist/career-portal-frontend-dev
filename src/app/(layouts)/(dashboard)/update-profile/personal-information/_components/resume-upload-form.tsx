@@ -17,7 +17,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaFilePdf, FaFileWord } from "react-icons/fa6";
-import { toast } from "sonner";
+
+import { toast } from "react-toastify";
 import * as z from "zod";
 import ProfileContentCard from "../../../_components/profile-content-card";
 
@@ -111,12 +112,12 @@ export function ResumeUploadForm() {
     setIsSubmitting(true);
 
     // Log the submitted data
-    console.log("Submitted data:", {
-      name: data.name,
-      fileSize: data.resume.size,
-      fileType: data.resume.type,
-      file: data.resume,
-    });
+    // console.log("Submitted data:", {
+    //   name: data.name,
+    //   fileSize: data.resume.size,
+    //   fileType: data.resume.type,
+    //   file: data.resume,
+    // });
 
     try {
       const formData = new FormData();
@@ -130,9 +131,7 @@ export function ResumeUploadForm() {
         throw new Error("Failed to upload resume");
       }
 
-      toast.success("Resume uploaded successfully!", {
-        description: "We'll review your application and get back to you soon.",
-      });
+      toast.success("Resume uploaded successfully!");
 
       // Reset form after successful submission
       form.reset();
@@ -142,16 +141,18 @@ export function ResumeUploadForm() {
       }
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("Failed to upload resume", {
-        description: "Please try again later.",
-      });
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "An error occurred while uploading",
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <ProfileContentCard>
+    <ProfileContentCard className="border-border bg-card relative rounded-lg border p-5 shadow-none md:p-6">
       <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
         Resume
       </h1>

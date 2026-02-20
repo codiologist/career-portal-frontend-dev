@@ -42,7 +42,7 @@ export function SingleExperienceCard({
   const isContinue = form.watch(`experiences.${index}.isContinue`);
 
   return (
-    <div className="border-border bg-card relative rounded-lg border p-6 shadow-sm">
+    <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
       <div className="mb-5 flex items-center justify-between">
         <h1 className="text-dark-blue-700 mb-1 text-lg font-bold xl:text-2xl">
           Experience - {index + 1}

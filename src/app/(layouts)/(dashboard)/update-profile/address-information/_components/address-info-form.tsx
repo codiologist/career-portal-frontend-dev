@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
@@ -133,64 +132,59 @@ export function AddressInfoForm() {
   }
 
   return (
-    <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-4xl p-0 xl:border xl:p-6">
+    <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-2xl p-0 xl:border xl:p-4">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* ── Present Address ── */}
-          <Card className="border-border bg-card shadow-sm">
-            <CardContent className="pt-6">
-              <h2 className="text-foreground mb-5 text-lg font-bold xl:text-2xl">
-                Present Address
-              </h2>
+          <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
+            <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
+              Present Address
+            </h1>
+            <AddressFields
+              form={form}
+              prefix="present"
+              initialValues={presentInitial}
+            />
+          </div>
+          {/* ── Permanent Address ── */}
+          <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
+            <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
+              Permanent Address
+            </h1>
+
+            <FormField
+              control={form.control}
+              name="isSameAsPresent"
+              render={({ field }) => (
+                <FormItem className="mb-5 flex items-center gap-2">
+                  <FormControl>
+                    <Checkbox
+                      className="h-5 w-5"
+                      checked={!!field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel className="text-foreground !mt-0 cursor-pointer text-base font-semibold">
+                    Permanent address is same as present address
+                  </FormLabel>
+                </FormItem>
+              )}
+            />
+
+            {!isSameAsPresent && (
               <AddressFields
                 form={form}
-                prefix="present"
-                initialValues={presentInitial}
+                prefix="permanent"
+                initialValues={permanentInitial}
               />
-            </CardContent>
-          </Card>
+            )}
 
-          {/* ── Permanent Address ── */}
-          <Card className="border-border bg-card shadow-sm">
-            <CardContent className="pt-6">
-              <h2 className="text-foreground mb-4 text-lg font-bold xl:text-2xl">
-                Permanent Address
-              </h2>
-
-              <FormField
-                control={form.control}
-                name="isSameAsPresent"
-                render={({ field }) => (
-                  <FormItem className="mb-5 flex items-center gap-2">
-                    <FormControl>
-                      <Checkbox
-                        className="h-5 w-5"
-                        checked={!!field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="text-foreground !mt-0 cursor-pointer text-base font-semibold">
-                      Permanent address is same as present address
-                    </FormLabel>
-                  </FormItem>
-                )}
-              />
-
-              {!isSameAsPresent && (
-                <AddressFields
-                  form={form}
-                  prefix="permanent"
-                  initialValues={permanentInitial}
-                />
-              )}
-
-              {isSameAsPresent && (
-                <p className="border-border bg-muted text-muted-foreground rounded-lg border px-4 py-3 text-sm">
-                  Permanent address will be the same as your present address.
-                </p>
-              )}
-            </CardContent>
-          </Card>
+            {isSameAsPresent && (
+              <p className="border-border bg-muted text-muted-foreground rounded-lg border px-4 py-3 text-sm">
+                Permanent address will be the same as your present address.
+              </p>
+            )}
+          </div>
 
           <div className="flex justify-end">
             <Button
