@@ -28,7 +28,7 @@ const TopNavBar = () => {
           </button>
         </div>
 
-        <Link href="/" aria-label="Go to home" className="block lg:hidden">
+        <Link href="/" aria-label="Go to home" className="block md:hidden">
           <div className="flex items-center gap-0">
             <Image src={logo} alt="Algorify Logo" className="h-auto w-7" />
             <h2 className="text-primary text-2xl font-bold">areer Portal</h2>

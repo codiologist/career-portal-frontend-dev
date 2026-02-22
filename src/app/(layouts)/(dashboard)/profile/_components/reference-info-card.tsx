@@ -1,4 +1,6 @@
 import { CandidateReference } from "@/types/reference-types";
+import { Building2, Handshake, IdCardLanyard, Mail } from "lucide-react";
+import { FaMobileAlt } from "react-icons/fa";
 import ProfileContentCard from "../../_components/profile-content-card";
 
 interface ReferenceInfoProps {
@@ -15,7 +17,7 @@ const ReferenceInfo = ({ references }: ReferenceInfoProps) => {
           </p>
         ) : (
           <div
-            className={`grid grid-cols-1 gap-4 ${references && references.length > 0 ? "md:grid-cols-1" : "md:grid-cols-1"}`}
+            className={`grid grid-cols-1 gap-4 ${references && references.length > 0 ? "md:grid-cols-2" : "md:grid-cols-1"}`}
           >
             {references?.map((item) => {
               return (
@@ -27,11 +29,26 @@ const ReferenceInfo = ({ references }: ReferenceInfoProps) => {
                     {item.name}
                   </h4>
                   <ul className="">
-                    <li className="font-medium">{item.designation}</li>
-                    <li className="font-medium">{item.companyName}</li>
-                    <li className="font-medium">{item.phone}</li>
-                    <li className="font-medium">{item.emailAddress}</li>
-                    <li className="font-medium">{item.relationship}</li>
+                    <li className="flex items-center gap-1 font-medium">
+                      <IdCardLanyard className="text-dark-blue-700/80 size-4 shrink-0" />
+                      {item.designation}
+                    </li>
+                    <li className="flex items-center gap-1 font-medium">
+                      <Building2 className="text-dark-blue-700/80 size-4 shrink-0" />
+                      {item.companyName}
+                    </li>
+                    <li className="flex items-center gap-1 font-medium">
+                      <FaMobileAlt className="text-dark-blue-700/80 size-4 shrink-0" />
+                      {item.phone}
+                    </li>
+                    <li className="flex items-center gap-1 font-medium">
+                      <Mail className="text-dark-blue-700/80 size-4 shrink-0" />
+                      {item.emailAddress}
+                    </li>
+                    <li className="flex items-center gap-1 font-medium">
+                      <Handshake className="text-dark-blue-700/80 size-4 shrink-0" />
+                      {item.relationship}
+                    </li>
                   </ul>
                 </div>
               );

@@ -75,21 +75,21 @@ const ExperienceInfoCard = ({ experiences }: ExperienceInfoCardProps) => {
                       <li className="flex items-start gap-3 xl:items-center">
                         <IdCardLanyard
                           size={16}
-                          className="text-dark-blue-700/60 size-5"
+                          className="text-dark-blue-700/60 size-5 shrink-0"
                         />
                         <p className="font-medium">{experience.department}</p>
                       </li>
                       <li className="flex items-start gap-3 xl:items-center">
                         <Building2
                           size={16}
-                          className="text-dark-blue-700/60 size-5"
+                          className="text-dark-blue-700/60 size-5 shrink-0"
                         />
                         <p className="font-medium">{experience.companyName}</p>
                       </li>
                       <li className="flex items-start gap-3 xl:items-center">
                         <Toolbox
                           size={16}
-                          className="text-dark-blue-700/60 size-5"
+                          className="text-dark-blue-700/60 size-5 shrink-0"
                         />
                         <p className="font-medium">
                           {experience.companyBusinessType}
