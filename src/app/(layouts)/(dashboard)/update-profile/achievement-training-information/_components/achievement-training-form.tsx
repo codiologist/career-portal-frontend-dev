@@ -10,6 +10,7 @@ import {
 
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axiosInstance";
+import { CandidateAchievement } from "@/types/achievement-types";
 import { TUserData } from "@/types/profile-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, PlusCircle, Send } from "lucide-react";
@@ -41,8 +42,7 @@ export default function AchievementTrainingForm() {
 
     const achievements =
       rawAchievements?.length > 0
-        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          rawAchievements.map((item: any) => ({
+        ? rawAchievements.map((item: CandidateAchievement) => ({
             achievementType: item.achievementType ?? "",
             title: item.title ?? "",
             organizationName: item.organizationName ?? "",

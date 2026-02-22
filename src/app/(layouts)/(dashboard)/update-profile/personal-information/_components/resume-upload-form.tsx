@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axiosInstance";
+import { TDocumentType } from "@/types/document-types";
 import { TGetMyProfileResponse } from "@/types/profile-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileIcon, FolderOpen, Loader2, Upload, X } from "lucide-react";
@@ -97,12 +98,11 @@ export function ResumeUploadForm() {
   });
 
   // Sync the saved resume from the user profile on mount / after refetch
-  const savedResume = (user as TGetMyProfileResponse)?.data?.documents?.find(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (doc) => doc.type === ("RESUME" as any),
+  const savedResume = user?.data?.documents?.find(
+    (doc) => (doc.type as unknown as TDocumentType) === TDocumentType.RESUME,
   ) as ResumeDocument | undefined;
 
-  console.log(savedResume);
+  // console.log(savedResume);
 
   // Use locally-tracked uploadedResume if available (optimistic), otherwise fall back to profile data
   const displayedResume = uploadedResume ?? savedResume ?? null;
@@ -204,8 +204,8 @@ export function ResumeUploadForm() {
 
       {/* ── Saved resume card (shown when no pending file is selected) ── */}
       {displayedResume && !pendingFile && (
-        <div className="bg-muted/50 mb-4 flex items-center justify-between rounded-lg border p-4">
-          <div className="flex items-center gap-3">
+        <div className="bg-muted/50 mb-4 flex items-start justify-between rounded-lg border p-4">
+          <div className="flex items-start gap-3">
             <div className="border-border bg-muted flex h-24 w-24 flex-col items-center justify-center gap-1 rounded border">
               <FileTypeIcon ext={getExtension(displayedResume.path)} />
             </div>

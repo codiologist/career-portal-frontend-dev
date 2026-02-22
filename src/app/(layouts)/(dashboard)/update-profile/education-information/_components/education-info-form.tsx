@@ -9,6 +9,7 @@ import {
   educationInfoFormSchema,
   EducationInfoFormValues,
 } from "@/schemas/education.schema";
+import { TCandidateEducation } from "@/types/education-types";
 import { TUserData } from "@/types/profile-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, PlusCircle, Send } from "lucide-react";
@@ -44,8 +45,7 @@ export default function EducationInfoForm() {
 
     const educations =
       rawEducations?.length > 0
-        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          rawEducations.map((item: any) => ({
+        ? rawEducations.map((item: TCandidateEducation) => ({
             levelOfEducationId: item.level?.id ?? "",
             levelName: item.level?.levelName ?? "",
             degreeNameId: item.degree?.id ?? "",
@@ -64,8 +64,8 @@ export default function EducationInfoForm() {
     setExistingCertificateUrls(
       rawEducations?.length > 0
         ? rawEducations.map(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (item: any) => item.documents?.[0]?.path ?? undefined,
+            (item: TCandidateEducation) =>
+              item.documents?.[0]?.path ?? undefined,
           )
         : [],
     );
@@ -101,7 +101,7 @@ export default function EducationInfoForm() {
       // education entry it belongs to. Entries where the user kept the old
       // certificate have no file appended; the server uses existingCertificateUrl
       // for those.
-      data.educations.forEach((education, index) => {
+      data.educations.forEach((education) => {
         if (education.certificate instanceof File) {
           formData.append(`certificate`, education.certificate);
         }

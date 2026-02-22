@@ -5,24 +5,31 @@ export type TCandidateEducation = {
   totalMarksCGPA: string;
 
   board: {
+    id: string;
     boardName: string;
   };
 
   degree: {
+    id: string;
     degreeName: string;
   };
 
   level: {
+    id: string;
     levelName: string;
   };
 
   majorGroup: {
+    id: string;
     groupName: string;
   };
 
   resultType: {
+    id: string;
     resultType: string;
   };
+
+  subjectName: string;
 
   subject: {
     subjectName?: string;

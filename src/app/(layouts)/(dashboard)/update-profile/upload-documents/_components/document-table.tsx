@@ -13,6 +13,7 @@ import withReactContent from "sweetalert2-react-content";
 import ProfileContentCard from "../../../_components/profile-content-card";
 
 import { Button } from "@/components/ui/button";
+import api from "@/lib/axiosInstance";
 import { format } from "date-fns/format";
 import { Trash2 } from "lucide-react";
 
@@ -26,16 +27,25 @@ const DocumentTable = () => {
 
   const MySwal = withReactContent(Swal);
 
-  const handleDelete = (docId: string) => {
+  const handleDelete = async (docId: string) => {
+    // try {
+    //   await api.delete(`/upload/user/document/delete/${docId}`);
+    //   MySwal.fire(<p>Document deleted successfully!</p>);
+    // } catch (error) {
+    //   MySwal.fire(<p>Failed to delete document.</p>);
+    // }
+
     MySwal.fire({
       title: <p>Are you sure you want to delete this document?</p>,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "No, keep it",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         // Call the delete API or perform the delete action
+        await api.delete(`/upload/user/document/delete/${docId}`);
+
         MySwal.fire(<p>Document deleted successfully!</p>);
       }
     });

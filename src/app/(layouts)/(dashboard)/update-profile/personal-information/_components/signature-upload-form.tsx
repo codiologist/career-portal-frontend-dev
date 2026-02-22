@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/form";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axiosInstance";
+import { TDocumentType } from "@/types/document-types";
 import { TGetMyProfileResponse } from "@/types/profile-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FolderOpen, Loader2, Upload, X } from "lucide-react";
@@ -79,9 +80,8 @@ export function SignatureUploadForm() {
   });
 
   // Saved signature from the user profile
-  const savedSignature = (user as TGetMyProfileResponse)?.data?.documents?.find(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (doc) => doc.type === ("SIGNATURE" as any),
+  const savedSignature = user?.data?.documents?.find(
+    (doc) => (doc.type as unknown as TDocumentType) === TDocumentType.SIGNATURE,
   ) as SignatureDocument | undefined;
 
   // Prefer optimistic uploadedSignature, fall back to profile data
@@ -204,7 +204,7 @@ export function SignatureUploadForm() {
               unoptimized
             />
           </div>
-          <div className="flex flex-col justify-center gap-1">
+          <div className="flex flex-col gap-1">
             <span className="text-sm font-medium">Current Signature</span>
             <span className="text-muted-foreground text-xs">
               {formatBytes(displayedSignature.size)} &middot; Uploaded{" "}

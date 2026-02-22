@@ -98,7 +98,7 @@ const ExperienceInfoCard = ({ experiences }: ExperienceInfoCardProps) => {
                       <li className="flex items-start gap-3 xl:items-center">
                         <MapPin
                           size={16}
-                          className="text-dark-blue-700/60 size-9 xl:size-5"
+                          className="text-dark-blue-700/60 size-5 shrink-0"
                         />
                         <p className="font-medium">{experience.location}</p>
                       </li>

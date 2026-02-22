@@ -19,7 +19,7 @@ const EducationalInfoCard = ({ educations }: EducationalInfoCardrops) => {
           </p>
         ) : (
           <ul className="space-y-4">
-            {educations?.map((education, idx) => {
+            {educations?.map((education) => {
               return (
                 <li
                   key={education.id}

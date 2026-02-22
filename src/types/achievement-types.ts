@@ -1,10 +1,8 @@
-import { TUserDocument } from "./document-types";
-
-type AchievementType = "PROFESSIONAL_CERTIFICATION" | "TRAINING";
+type AchievementType = "PROFESSIONAL_CERTIFICATION" | "TRAINING" | "WORKSHOP";
 
 export interface CandidateAchievement {
   id: string;
-  type: AchievementType;
+  achievementType: AchievementType;
   title: string;
   organizationName: string;
   url: string;
@@ -14,5 +12,17 @@ export interface CandidateAchievement {
   userId: string;
   createdAt: string;
   updatedAt: string;
-  documents: TUserDocument[];
+  documents: TAchievementDocument[];
 }
+
+export type TAchievementDocument = {
+  id: string;
+  type: string;
+  name: string | null;
+  folderName: string;
+  path: string;
+  remarks: string | null;
+  documentNo: string | null;
+  isDeleted: boolean;
+  issueAuthority: string | null;
+};

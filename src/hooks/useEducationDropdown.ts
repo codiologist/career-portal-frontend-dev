@@ -37,6 +37,7 @@ export const useEducationDropdown = (
   watchedLevelId?: string,
   watchedDegreeId?: string,
   prefix?: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: UseFormReturn<any>,
   initialValues?: InitialEducationValues,
 ) => {

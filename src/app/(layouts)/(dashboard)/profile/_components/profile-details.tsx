@@ -39,8 +39,8 @@ const ProfileDetails = () => {
             content={user?.data?.candidatePersonal?.careerObjective}
           />
           <ExperienceInfoCard experiences={user?.data?.candidateExperiences} />
-          <EducationalInfoCard educations={user?.data?.candidateEducations} />
           <SkillsInfoCard skills={user?.data?.candidatePersonal?.skills} />
+          <EducationalInfoCard educations={user?.data?.candidateEducations} />
           <AchievementCard achievements={user?.data?.candidateAchievements} />
           <ReferenceInfo references={user?.data?.candidateReferences} />
           {/* <OtherDocumentsCard /> */}

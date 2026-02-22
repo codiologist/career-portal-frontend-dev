@@ -151,44 +151,55 @@ const ContactInfoCard = ({
                 {addresses && addresses.length > 0 ? (
                   <>
                     <p className="text-dark-blue-700 mb-0 font-semibold">
-                      Permanent Address
+                      Present Address
                     </p>
-                    <p className="text-sm font-bold">
-                      <span>{addresses[1].addressLine},</span>{" "}
-                      <span>Ward No: {addresses[1].wardNo},</span>{" "}
-                      <span>
-                        Post Office: {addresses[1].postOffice?.postOffice},
-                      </span>{" "}
-                      <span>
-                        Upazial:{" "}
-                        {addresses[1].upazila !== null
-                          ? addresses[1].upazila?.name
-                          : ""}
-                        ,
-                      </span>{" "}
-                      <span>
-                        Union:{" "}
-                        {addresses[1].unionParishad !== null
-                          ? addresses[1].unionParishad?.name
-                          : ""}
-                      </span>{" "}
-                      <span>
-                        Municipality{" "}
-                        {addresses[1].municipality !== null
-                          ? addresses[1].municipality?.name
-                          : ""}
-                      </span>{" "}
-                      <span>
-                        {addresses[1].cityCorporation !== null
-                          ? addresses[1].cityCorporation?.name
-                          : ""}
-                        ,
-                      </span>{" "}
+                    <p className="inline-flex flex-wrap gap-x-1 text-sm font-bold">
+                      <span>{addresses[1].addressLine},</span>
+                      <span>Ward No: {addresses[1].wardNo},</span>
+                      {addresses[1].upazila !== null && (
+                        <span>{addresses[1].upazila?.name},</span>
+                      )}
+                      {addresses[1].cityCorporation !== null && (
+                        <span>{addresses[1].cityCorporation?.name},</span>
+                      )}
+                      {addresses[1].unionParishad !== null && (
+                        <span>{addresses[1].unionParishad?.name},</span>
+                      )}
+                      {addresses[1].municipality !== null && (
+                        <span>{addresses[1].municipality?.name},</span>
+                      )}
+                      <span>{addresses[1].policeStation?.name ?? "N/A"},</span>
                       <span>
                         {addresses[1].district?.name ?? "N/A"} -{" "}
                         {addresses[1].postOffice?.postCode},
                       </span>{" "}
                       <span>{addresses[1].division?.name ?? "N/A"}.</span>
+                      {/* <span>
+                      {addresses[1].upazila !== null
+                        ? addresses[1].upazila?.name
+                        : ""}
+                    </span>{" "}
+                    <span>
+                      {addresses[1].unionParishad !== null
+                        ? addresses[1].unionParishad?.name
+                        : ""}
+                    </span>{" "}
+                    <span>
+                      {addresses[1].municipality !== null
+                        ? addresses[1].municipality?.name
+                        : ""}
+                    </span>{" "}
+                    <span>
+                      {addresses[1].cityCorporation !== null
+                        ? addresses[1].cityCorporation?.name
+                        : ""}
+                      ,
+                    </span>{" "}
+                    <span>
+                      {addresses[1].district?.name ?? "N/A"} -{" "}
+                      {addresses[1].postOffice?.postCode},
+                    </span>{" "}
+                    <span>{addresses[1].division?.name ?? "N/A"}.</span> */}
                     </p>
                   </>
                 ) : (
