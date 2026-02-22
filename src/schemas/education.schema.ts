@@ -3,36 +3,51 @@ import { z } from "zod";
 const MAX_FILE_SIZE = 500 * 1024; // 500KB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const HIDE_MARKS: string[] = ["Appeared", "Pass"];
+const LEVEL_SSC_HSC: string[] = ["Secondary", "Higher Secondary"];
+const LEVEL_PHD: string[] = ["PhD"];
 
 const educationEntrySchema = z
   .object({
     levelOfEducationId: z.string().min(1, "Level of education is required"),
+    levelName: z.string().optional(), // ← hidden field synced by the card
     degreeNameId: z.string().min(1, "Degree name is required"),
     educationBoardId: z.string().optional(),
-    majorGroupId: z.string().min(1, "Major/Group is required"),
-    subjectName: z.string().min(1, "Subject name is required"),
+    majorGroupId: z.string().optional(),
+    subjectName: z.string().optional(),
     instituteName: z.string().min(1, "Institute name is required"),
     resultTypeId: z.string().min(1, "Result type is required"),
     totalMarksCGPA: z.string().optional(),
     yearOfPassing: z.string().min(1, "Year of passing is required"),
     certificate: z.any(),
+    // ← tracks the server-side URL when no new file is uploaded
+    existingCertificateUrl: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    // console.log("Log From Schema", data);
-    // Education Board is required when degree is SSC or HSC
-    if (
-      data.levelOfEducationId === "Secondary" ||
-      data.levelOfEducationId === "Higher Secondary"
-    ) {
-      if (!data.educationBoardId || data.educationBoardId.length === 0) {
+    const hideMarks = HIDE_MARKS.includes(data.resultTypeId);
+
+    // ✅ Now correctly comparing the resolved name, not the raw ID
+    const isSSCorHSC = LEVEL_SSC_HSC.includes(data.levelName ?? "");
+
+    if (isSSCorHSC) {
+      if (!data.educationBoardId || data.educationBoardId.trim() === "") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Education Board is required for SSC/HSC",
+          message: "Education board is required",
           path: ["educationBoardId"],
         });
       }
     }
-    const hideMarks = HIDE_MARKS.includes(data.resultTypeId);
+
+    if (!isSSCorHSC) {
+      if (!data.subjectName || data.subjectName.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Subject name is required",
+          path: ["subjectName"],
+        });
+      }
+    }
+
     if (!hideMarks) {
       if (!data.totalMarksCGPA || data.totalMarksCGPA.trim() === "") {
         ctx.addIssue({
@@ -45,23 +60,23 @@ const educationEntrySchema = z
         });
       }
     }
-    if (data.resultTypeId === "Appeared" || data.resultTypeId === "Pass") {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Total marks is not allowed for Appeared/Pass",
-        path: ["totalMarksCGPA"],
-      });
-    }
 
-    // Certificate is required and must be a File
-    if (!data.certificate || !(data.certificate instanceof File)) {
+    const hasNewFile = data.certificate instanceof File;
+    // ✅ FIX: treat a non-empty existingCertificateUrl as a valid certificate
+    const hasExistingUrl =
+      typeof data.existingCertificateUrl === "string" &&
+      data.existingCertificateUrl.trim() !== "";
+
+    if (!hasNewFile && !hasExistingUrl) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Certificate is required",
         path: ["certificate"],
       });
-    } else {
-      // Validate file size
+    }
+
+    // Only validate file constraints when a new file is being uploaded
+    if (hasNewFile) {
       if (data.certificate.size > MAX_FILE_SIZE) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -69,7 +84,6 @@ const educationEntrySchema = z
           path: ["certificate"],
         });
       }
-      // Validate file type
       if (!ACCEPTED_IMAGE_TYPES.includes(data.certificate.type)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -88,8 +102,9 @@ export const educationInfoFormSchema = z.object({
 
 export type EducationInfoFormValues = z.infer<typeof educationInfoFormSchema>;
 
-export const defaultEducation = {
+export const defaultEducation: EducationInfoFormValues["educations"][number] = {
   levelOfEducationId: "",
+  levelName: "", // ← include in default
   degreeNameId: "",
   educationBoardId: "",
   majorGroupId: "",
@@ -99,4 +114,5 @@ export const defaultEducation = {
   totalMarksCGPA: "",
   yearOfPassing: "",
   certificate: null,
+  existingCertificateUrl: "",
 };

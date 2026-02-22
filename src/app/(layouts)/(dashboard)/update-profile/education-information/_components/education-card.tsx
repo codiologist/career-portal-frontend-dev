@@ -1,17 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { EducationInfoFormValues } from "@/schemas/education.schema";
-import { Trash2, Upload } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
-import type { UseFormReturn } from "react-hook-form";
-// import { education_data } from "@_data/education_data";
-import { education_data } from "@/_data/education_data";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useEducationDropdown } from "@/hooks/useEducationDropdown";
+import { cn } from "@/lib/utils";
 import { yearOptions } from "@/lib/year-options";
+import { EducationInfoFormValues } from "@/schemas/education.schema";
+import { Trash2, Upload } from "lucide-react";
 import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
+import type { UseFormReturn } from "react-hook-form";
 import {
   SelectInput,
   SelectOption,
@@ -23,98 +22,163 @@ interface EducationCardProps {
   form: UseFormReturn<EducationInfoFormValues>;
   onRemove: () => void;
   canRemove: boolean;
+  existingCertificateUrl?: string; // kept for initial preview seed from parent
 }
-
-const resultTypeOptions: SelectOption[] = [
-  { label: "First Division/Class", value: "First Division/Class" },
-  { label: "Second Division/Class", value: "Second Division/Class" },
-  { label: "Third Division/Class", value: "Third Division/Class" },
-  { label: "Grade", value: "Grade" },
-  { label: "Appeared", value: "Appeared" },
-  { label: "Pass", value: "Pass" },
-];
-
-const subjectOptions: SelectOption[] = [
-  { label: "Science", value: "Science" },
-  { label: "Commerce", value: "Commerce" },
-  { label: "Arts/Humanities", value: "Arts/Humanities" },
-  { label: "General", value: "General" },
-  { label: "Vocational", value: "Vocational" },
-  { label: "Other", value: "Other" },
-];
 
 export default function EducationCard({
   index,
   form,
   onRemove,
   canRemove,
+  existingCertificateUrl,
 }: EducationCardProps) {
   const [mounted, setMounted] = useState(false);
-  //For File
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [certificateError, setCertificateError] = useState<string | null>(null);
+  const prevLevelId = useRef<string>("");
+  const prevDegreeId = useRef<string>("");
 
-  // Read Zod validation errors from form state (set on submit)
-  const zodCertificateError = form.formState.errors?.educations?.[index]
-    ?.certificate?.message as string | undefined;
-  // Show local error (from handleFileChange) or Zod error (from form submit)
-  const displayError = certificateError || zodCertificateError || null;
+  // ── Watched field values ────────────────────────────────────────────────────
+  const watchedLevelId = form.watch(`educations.${index}.levelOfEducationId`);
+  const watchedDegreeId = form.watch(`educations.${index}.degreeNameId`);
+  const watchedResultTypeId = form.watch(`educations.${index}.resultTypeId`);
+  // ✅ Watch existingCertificateUrl directly from form state so it stays in sync
+  // with what the parent stored via form.reset(). This is the source of truth
+  // for whether an old server-side certificate is still in play.
+  const watchedExistingUrl = form.watch(
+    `educations.${index}.existingCertificateUrl`,
+  );
 
-  const watchLevel = form.watch(`educations.${index}.levelOfEducationId`);
-  const watchDegree = form.watch(`educations.${index}.degreeNameId`);
-  const watchResultType = form.watch(`educations.${index}.resultTypeId`);
+  // ── API-driven dropdown data via hook ───────────────────────────────────────
+  const {
+    levels,
+    degrees,
+    educationMeta,
+    loadingLevel,
+    loadingDegree,
+    loadingMeta,
+  } = useEducationDropdown(
+    watchedLevelId,
+    watchedDegreeId,
+    `educations.${index}`,
+    form,
+  );
+
+  // ── Derived display state ───────────────────────────────────────────────────
+  const selectedLevel = levels.find((l) => l.id === watchedLevelId);
+  const isSSCorHS = selectedLevel
+    ? ["Secondary", "Higher Secondary"].includes(selectedLevel.levelName)
+    : false;
+
+  const selectedResultType = educationMeta?.resultTypes.find(
+    (r) => r.id === watchedResultTypeId,
+  );
   const isAppearedOrPass =
-    watchResultType === "Pass" || watchResultType === "Appeared";
-
+    selectedResultType?.resultType === "Pass" ||
+    selectedResultType?.resultType === "Appeared";
   const hideTotalMarks = isAppearedOrPass;
 
-  // Get education level options
-  const levelOptions: SelectOption[] = education_data.map((item) => ({
-    label: item.name,
-    value: item.name,
+  // ── Build SelectOption arrays from hook data ────────────────────────────────
+  const levelOptions: SelectOption[] = levels.map((l) => ({
+    label: l.levelName,
+    value: l.id,
   }));
 
-  // Get degree options based on selected level
-  const selectedLevel = education_data.find((item) => item.name === watchLevel);
-  const degreeOptions: SelectOption[] =
-    selectedLevel?.degree_name?.map((d) => ({
-      label: d.name,
-      value: d.name,
-    })) || [];
+  const degreeOptions: SelectOption[] = degrees.map((d) => ({
+    label: d.degreeName,
+    value: d.id,
+  }));
 
-  // Get board options (from Secondary data which has boards)
-  const educationBoardData = education_data.find(
-    (item) => item.education_board,
+  const boardOptions: SelectOption[] = (educationMeta?.boards ?? []).map(
+    (b) => ({
+      label: b.boardName,
+      value: b.id,
+    }),
   );
-  const boardOptions: SelectOption[] =
-    educationBoardData?.education_board?.map((b) => ({
-      label: b.name,
-      value: b.name,
-    })) || [];
 
-  // Show board when degree is SSC or HSC
-  const showBoard =
-    watchLevel === "Secondary" || watchLevel === "Higher Secondary";
+  const majorGroupOptions: SelectOption[] = (
+    educationMeta?.majorGroups ?? []
+  ).map((g) => ({
+    label: g.groupName,
+    value: g.id,
+  }));
 
+  const resultTypeOptions: SelectOption[] = (
+    educationMeta?.resultTypes ?? []
+  ).map((r) => ({
+    label: r.resultType,
+    value: r.id,
+  }));
+
+  // ── Zod / local certificate error ──────────────────────────────────────────
+  const zodCertificateError = form.formState.errors?.educations?.[index]
+    ?.certificate?.message as string | undefined;
+  const displayError = certificateError || zodCertificateError || null;
+
+  // ── Side effects ───────────────────────────────────────────────────────────
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Reset dependent fields when level changes
+  // ✅ Build the initial preview from the existing URL when the card first mounts
+  // or when the parent re-seeds existingCertificateUrl (e.g. after form.reset).
+  // We only set the preview here — we never clear it from this effect so that
+  // a newly uploaded file's preview is not accidentally overwritten.
   useEffect(() => {
+    const url = watchedExistingUrl ?? existingCertificateUrl;
+    if (url && !preview) {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+      const fullUrl = url.startsWith("http") ? url : `${baseUrl}/${url}`;
+      setPreview(fullUrl);
+    }
+  }, [watchedExistingUrl, existingCertificateUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ✅ Sync the resolved level name into the hidden `levelName` field so the
+  // Zod schema can compare names instead of opaque IDs.
+  useEffect(() => {
+    const name = selectedLevel?.levelName ?? "";
+    form.setValue(`educations.${index}.levelName`, name, {
+      shouldValidate: false,
+    });
+  }, [selectedLevel?.levelName]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reset dependent fields only when the user actively changes the level
+  useEffect(() => {
+    const prev = prevLevelId.current;
+    prevLevelId.current = watchedLevelId;
+
+    if (!prev || prev === watchedLevelId) return;
+
     form.setValue(`educations.${index}.degreeNameId`, "");
     form.setValue(`educations.${index}.educationBoardId`, "");
-  }, [watchLevel, form, index]);
+    form.setValue(`educations.${index}.majorGroupId`, "");
+    form.setValue(`educations.${index}.resultTypeId`, "");
+    form.setValue(`educations.${index}.totalMarksCGPA`, "");
 
-  // Reset board when degree changes
+    if (!isSSCorHS) {
+      form.setValue(`educations.${index}.subjectName`, "");
+      form.clearErrors(`educations.${index}.subjectName`);
+      form.clearErrors(`educations.${index}.educationBoardId`);
+    }
+  }, [watchedLevelId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reset downstream fields only when the user actively changes the degree
   useEffect(() => {
-    if (!showBoard) {
+    const prev = prevDegreeId.current;
+    prevDegreeId.current = watchedDegreeId;
+
+    if (!prev || prev === watchedDegreeId) return;
+
+    if (!isSSCorHS) {
       form.setValue(`educations.${index}.educationBoardId`, "");
     }
-  }, [watchDegree, showBoard, form, index]);
+    form.setValue(`educations.${index}.majorGroupId`, "");
+    form.setValue(`educations.${index}.resultTypeId`, "");
+    form.setValue(`educations.${index}.totalMarksCGPA`, "");
+  }, [watchedDegreeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Hide total marks when result type is "Appeared" or "Pass"
+  // Clear totalMarksCGPA when result type hides the field
   useEffect(() => {
     if (hideTotalMarks) {
       form.setValue(`educations.${index}.totalMarksCGPA`, "", {
@@ -122,50 +186,66 @@ export default function EducationCard({
       });
       form.clearErrors(`educations.${index}.totalMarksCGPA`);
     }
-  }, [hideTotalMarks, form, index]);
+  }, [hideTotalMarks]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── File handling ──────────────────────────────────────────────────────────
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ["image/jpeg", "image/jpg", "image/png"];
-      if (!validTypes.includes(file.type)) {
-        setCertificateError("Only .jpeg, .jpg, and .png files are accepted");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
-      }
+    if (!file) return;
 
-      // Validate file size
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        setCertificateError("Max file size is 5MB");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
-      }
-
-      // Clear previous errors and set value
-      setCertificateError(null);
-      form.setValue(`educations.${index}.certificate`, file, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result as string);
-      reader.readAsDataURL(file);
+    const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!validTypes.includes(file.type)) {
+      setCertificateError("Only .jpeg, .jpg, and .png files are accepted");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
     }
+
+    const MAX_SIZE = 500 * 1024;
+    if (file.size > MAX_SIZE) {
+      setCertificateError("Max file size is 500KB");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    setCertificateError(null);
+
+    // ✅ Store the new File in the form so onSubmit can append it as
+    // `certificate_<index>` to FormData.
+    form.setValue(`educations.${index}.certificate`, file, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+
+    // ✅ When a new file is chosen we no longer need the old server path —
+    // clear it so the backend knows to use the newly uploaded file instead.
+    form.setValue(`educations.${index}.existingCertificateUrl`, "", {
+      shouldValidate: false,
+    });
+
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
   const removeFile = () => {
+    // ✅ Clear the new file from the form
     form.setValue(`educations.${index}.certificate`, undefined, {
       shouldValidate: true,
     });
+
+    // ✅ Also clear the existing server-side URL so the Zod schema correctly
+    // surfaces a "Certificate is required" error — the user has explicitly
+    // removed both the new file and the old one.
+    form.setValue(`educations.${index}.existingCertificateUrl`, "", {
+      shouldValidate: true,
+    });
+
     setPreview(null);
     setCertificateError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
       {/* Header */}
@@ -194,48 +274,58 @@ export default function EducationCard({
           form={form}
           name={`educations.${index}.levelOfEducationId`}
           label="Level of Education"
-          placeholder="Select level"
+          placeholder={loadingLevel ? "Loading…" : "Select level"}
           options={levelOptions}
           required
+          disabled={loadingLevel}
         />
+
         {/* Degree Name */}
         <SelectInput
           form={form}
           name={`educations.${index}.degreeNameId`}
           label="Degree Name"
-          placeholder="Select degree"
+          placeholder={loadingDegree ? "Loading…" : "Select degree"}
           options={degreeOptions}
           required
-          disabled={!watchLevel}
+          disabled={!watchedLevelId || loadingDegree}
         />
-        {/* Board (conditional) */}
-        {showBoard && (
+
+        {/* Education Board — only shown for Secondary / Higher Secondary */}
+        {isSSCorHS && (
           <SelectInput
             form={form}
             name={`educations.${index}.educationBoardId`}
             label="Education Board"
-            placeholder="Select board"
+            placeholder={loadingMeta ? "Loading…" : "Select board"}
             options={boardOptions}
             required
+            disabled={loadingMeta}
           />
         )}
-        {/* Subject/Major/Group */}
+
+        {/* Major / Group */}
         <SelectInput
           form={form}
           name={`educations.${index}.majorGroupId`}
           label="Major/Group"
-          placeholder="Select subject"
-          options={subjectOptions}
+          placeholder={loadingMeta ? "Loading…" : "Select major/group"}
+          options={majorGroupOptions}
           required
+          disabled={!watchedDegreeId || loadingMeta}
         />
-        {/* Institute Name */}
-        <TextInput
-          form={form}
-          name={`educations.${index}.subjectName`}
-          label="Subject Name"
-          placeholder="Enter subject name"
-          required
-        />
+
+        {/* Subject Name — required for non-SSC/HSC levels */}
+        {!isSSCorHS && (
+          <TextInput
+            form={form}
+            name={`educations.${index}.subjectName`}
+            label="Subject Name"
+            placeholder="Enter subject name"
+            required
+          />
+        )}
+
         {/* Institute Name */}
         <TextInput
           form={form}
@@ -244,23 +334,30 @@ export default function EducationCard({
           placeholder="Enter institute name"
           required
         />
+
         {/* Result Type */}
         <SelectInput
           form={form}
           name={`educations.${index}.resultTypeId`}
           label="Result Type"
-          placeholder="Select result type"
+          placeholder={loadingMeta ? "Loading…" : "Select result type"}
           options={resultTypeOptions}
           required
+          disabled={!watchedDegreeId || loadingMeta}
         />
 
+        {/* Total Marks / CGPA — hidden for Appeared / Pass */}
         {mounted && !hideTotalMarks && (
           <TextInput
             form={form}
             name={`educations.${index}.totalMarksCGPA`}
-            label={watchResultType === "Grade" ? "GPA/CGPA" : "Total Marks(%)"}
+            label={
+              selectedResultType?.resultType === "Grade"
+                ? "GPA/CGPA"
+                : "Total Marks (%)"
+            }
             placeholder={
-              watchResultType === "Grade"
+              selectedResultType?.resultType === "Grade"
                 ? "Enter GPA/CGPA"
                 : "Enter Total Marks"
             }
@@ -296,10 +393,14 @@ export default function EducationCard({
             >
               <Upload className="text-muted-foreground h-4 w-4" />
               <span className="text-muted-foreground text-sm">
-                JPEG, JPG, PNG (Max 5MB)
+                {/* ✅ Show a hint when an existing certificate is already on file */}
+                {watchedExistingUrl && !preview?.startsWith("data:")
+                  ? "Replace certificate (optional)"
+                  : "JPEG, JPG, PNG (Max 500KB)"}
               </span>
               <Input
                 ref={fileInputRef}
+                name={`educations.${index}.certificate`}
                 id={`certificate-${index}`}
                 type="file"
                 accept=".jpeg,.jpg,.png"
@@ -316,20 +417,20 @@ export default function EducationCard({
         </div>
       </div>
 
+      {/* Certificate Preview */}
       {preview && (
         <div className="mt-4">
           <div className="relative h-auto w-40 text-center">
-            <div>
-              <Image
-                src={preview || "/placeholder.svg"}
-                alt="Certificate preview"
-                width={32}
-                height={32}
-                className="relative mx-auto h-auto w-40 rounded border object-cover p-1"
-                unoptimized
-              />
-            </div>
+            <Image
+              src={preview}
+              alt="Certificate preview"
+              width={160}
+              height={160}
+              className="relative mx-auto h-auto w-40 rounded border object-cover p-1"
+              unoptimized
+            />
             <Button
+              type="button"
               onClick={removeFile}
               className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-600/80 p-1 hover:bg-red-700"
             >
@@ -337,8 +438,10 @@ export default function EducationCard({
             </Button>
           </div>
           <p className="text-dark-blue-800 mt-3 text-sm font-bold">
-            {form.getValues(`educations.${index}.certificate`)?.name ||
-              "Certificate"}
+            {/* ✅ Show the actual filename for new uploads, or a label for existing ones */}
+            {form.getValues(`educations.${index}.certificate`) instanceof File
+              ? (form.getValues(`educations.${index}.certificate`) as File).name
+              : "Existing Certificate"}
           </p>
         </div>
       )}

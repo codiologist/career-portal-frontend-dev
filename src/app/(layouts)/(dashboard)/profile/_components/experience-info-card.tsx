@@ -43,7 +43,7 @@ const ExperienceInfoCard = ({ experiences }: ExperienceInfoCardProps) => {
                     </div>
                   ) : (
                     <div className="text-dark-blue-700 relative top-0.5">
-                      <FaCircle className="size-4" />
+                      {/* <FaCircle className="size-4" /> */}
                     </div>
                   )}
 

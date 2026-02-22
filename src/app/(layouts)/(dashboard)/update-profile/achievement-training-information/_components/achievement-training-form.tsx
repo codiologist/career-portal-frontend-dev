@@ -43,7 +43,7 @@ export default function AchievementTrainingForm() {
       rawAchievements?.length > 0
         ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
           rawAchievements.map((item: any) => ({
-            achievementType: item.type ?? "",
+            achievementType: item.achievementType ?? "",
             title: item.title ?? "",
             organizationName: item.organizationName ?? "",
             url: item.url ?? "",
@@ -69,7 +69,7 @@ export default function AchievementTrainingForm() {
       const formData = new FormData();
 
       const achievementsPayload = data.achievements.map((achievement) => ({
-        type: achievement.achievementType,
+        achievementType: achievement.achievementType,
         title: achievement.title,
         organizationName: achievement.organizationName,
         url: achievement.url ?? null,
@@ -84,7 +84,7 @@ export default function AchievementTrainingForm() {
       // Entries that kept their existing document will not append anything here.
       data.achievements.forEach((achievement) => {
         if (achievement.certificate instanceof File) {
-          formData.append("files", achievement.certificate);
+          formData.append("achievement", achievement.certificate);
         }
       });
 

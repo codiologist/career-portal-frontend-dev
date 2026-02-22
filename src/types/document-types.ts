@@ -7,7 +7,7 @@ export enum TDocumentType {
   AVATAR = "AVATAR",
   SIGNATURE = "SIGNATURE",
   CERTIFICATE = "CERTIFICATE",
-  OTHER = "OTHER",
+  DOCUMENT = "DOCUMENT",
 }
 
 /* ---------- Raw User Document ---------- */
@@ -17,6 +17,7 @@ export interface TUserDocument {
 
   type: TSubmitedDocumentType;
   name: TDocumentType;
+  folderName: string;
 
   documentNo: string;
   issueAuthority: string;

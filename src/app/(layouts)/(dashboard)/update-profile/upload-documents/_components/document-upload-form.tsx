@@ -21,6 +21,7 @@ import {
 import { Loader2, Trash2, Upload } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axiosInstance";
 import { cn } from "@/lib/utils";
 import {
@@ -37,6 +38,7 @@ import { DatePickerInput, TextInput } from "../../_components/form-inputs";
 import DocumentTable from "./document-table";
 
 const DocumentUploadForm = () => {
+  const { refetchUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -47,7 +49,8 @@ const DocumentUploadForm = () => {
       documentFormSchema,
     ) as unknown as Resolver<TDocumentFormValues>,
     defaultValues: {
-      name: undefined,
+      type: undefined,
+      name: "",
       documentNo: "",
       issueDate: new Date(),
       issueAuthority: "",
@@ -69,8 +72,8 @@ const DocumentUploadForm = () => {
     try {
       const formData = new FormData();
       const payload = {
-        type: "OTHER",
         ...data,
+        name: data.type.toUpperCase(),
         // Format date to YYYY-MM-DD for API
         issueDate: data.issueDate.toISOString(),
       };
@@ -78,10 +81,10 @@ const DocumentUploadForm = () => {
 
       console.log(documentFile, dataWithoutFile);
 
-      formData.append("other", documentFile);
+      formData.append("document", documentFile);
       formData.append("data", JSON.stringify(dataWithoutFile));
 
-      const response = await api.post("/upload/user/other", formData, {
+      const response = await api.post("/upload/user/document", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -93,11 +96,11 @@ const DocumentUploadForm = () => {
       form.reset();
       setPreview(null);
       setResetKey((prev) => prev + 1); // ✅ forces Select to remount
-
-      window.location.reload(); // Temporary: reload to fetch new document list. Ideally, we should update the local state instead of reloading.
       if (fileInputRef.current) fileInputRef.current.value = "";
+      await refetchUser();
     } catch (error) {
       console.error("Upload failed:", error);
+      toast.error("Upload failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -123,7 +126,7 @@ const DocumentUploadForm = () => {
                 {/* Document Type */}
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="type"
                   render={({ field }) => (
                     <FormItem className="form-input-item select-input">
                       <FormLabel className="gap-1 text-base">

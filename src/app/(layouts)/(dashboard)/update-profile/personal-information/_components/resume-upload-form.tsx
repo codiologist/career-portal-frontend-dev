@@ -13,11 +13,9 @@ import api from "@/lib/axiosInstance";
 import { TGetMyProfileResponse } from "@/types/profile-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileIcon, FolderOpen, Loader2, Upload, X } from "lucide-react";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaFilePdf, FaFileWord } from "react-icons/fa6";
-
 import { toast } from "react-toastify";
 import * as z from "zod";
 import ProfileContentCard from "../../../_components/profile-content-card";
@@ -28,7 +26,6 @@ const ACCEPTED_FILE_TYPES = [
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
-
 const ACCEPTED_EXTENSIONS = ".pdf,.doc,.docx";
 
 const formSchema = z.object({
@@ -47,32 +44,77 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+type ResumeDocument = {
+  id: string;
+  type: string;
+  path: string;
+  size: number;
+  mimeType: string;
+  createdAt: string;
+  name: string | null;
+};
+
+/** Derives a display file name from the stored path (e.g. "resume.docx") */
+function fileNameFromPath(path: string): string {
+  const parts = path.split("/");
+  const raw = parts[parts.length - 1] ?? path;
+  // Strip the timestamp prefix: "1771451832480-255392258.docx" → "255392258.docx"
+  // Keep full name as fallback
+  const withoutTimestamp = raw.replace(/^\d+-/, "");
+  return withoutTimestamp || raw;
+}
+
+/** Formats bytes to a human-readable string */
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/** Returns the file extension from a path or mime type */
+function getExtension(path: string): string {
+  return path.split(".").pop()?.toLowerCase() ?? "";
+}
+
 export function ResumeUploadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [uploadedResume, setUploadedResume] = useState<ResumeDocument | null>(
+    null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { user } = useAuth();
+  // Pull refetchUser (or equivalent) from your AuthContext.
+  // Adjust the destructured name to match what your AuthContext actually exports.
+  const { user, refetchUser } = useAuth() as {
+    user: TGetMyProfileResponse | null;
+    refetchUser: () => Promise<void>;
+  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "RESUME",
-      resume: undefined,
-    },
+    defaultValues: { name: "RESUME", resume: undefined },
   });
 
-  const resumePath = (user as TGetMyProfileResponse)?.data?.documents?.find(
+  // Sync the saved resume from the user profile on mount / after refetch
+  const savedResume = (user as TGetMyProfileResponse)?.data?.documents?.find(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (doc) => doc.type === ("RESUME" as any),
-  );
+  ) as ResumeDocument | undefined;
 
+  console.log(savedResume);
+
+  // Use locally-tracked uploadedResume if available (optimistic), otherwise fall back to profile data
+  const displayedResume = uploadedResume ?? savedResume ?? null;
+
+  // Keep uploadedResume in sync when the profile refreshes (so we don't show stale optimistic data)
   useEffect(() => {
-    if (resumePath) {
-      setPreviewUrl(`${process.env.NEXT_PUBLIC_API_URL}/${resumePath?.path}`);
+    if (savedResume && uploadedResume && savedResume.id === uploadedResume.id) {
+      setUploadedResume(null); // profile is up to date, clear optimistic state
     }
-  }, [resumePath, user]);
+  }, [savedResume, uploadedResume]);
+
+  // --- Pending file handlers ---
 
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -80,65 +122,52 @@ export function ResumeUploadForm() {
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      setFileName(file.name);
+      setPendingFile(file);
       onChange(file);
-
-      // Generate preview for image files
-      if (file.type.startsWith("image/")) {
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-      } else {
-        setPreviewUrl(null);
-      }
-
-      console.log(previewUrl);
     }
   };
 
   const handleRemoveFile = () => {
-    setFileName(null);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-    }
+    setPendingFile(null);
     form.setValue("resume", undefined as unknown as File);
     form.clearErrors("resume");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  // --- Submit ---
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-
-    // Log the submitted data
-    // console.log("Submitted data:", {
-    //   name: data.name,
-    //   fileSize: data.resume.size,
-    //   fileType: data.resume.type,
-    //   file: data.resume,
-    // });
-
     try {
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("resume", data.resume);
 
-      // Replace this URL with your actual backend API endpoint
       const response = await api.post("/upload/user/resume", formData);
 
-      if (response.status !== 200) {
-        throw new Error("Failed to upload resume");
+      console.log(response?.data);
+
+      if (response.status !== 201) throw new Error("Failed to upload resume");
+
+      // Optimistically update the UI with the returned document
+      const returnedDoc: ResumeDocument =
+        response.data?.data?.document ?? // adjust path to match your API shape
+        response.data?.document ??
+        null;
+
+      if (returnedDoc) {
+        setUploadedResume(returnedDoc);
       }
+
+      // Refetch user profile so the AuthContext stays in sync
+      await refetchUser();
 
       toast.success("Resume uploaded successfully!");
 
-      // Reset form after successful submission
+      // Clear the pending file selection
       form.reset();
-      setFileName(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      setPendingFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Upload error:", error);
       toast.error(
@@ -151,11 +180,58 @@ export function ResumeUploadForm() {
     }
   };
 
+  // --- File icon helper ---
+
+  const FileTypeIcon = ({
+    ext,
+    size = "md",
+  }: {
+    ext: string;
+    size?: "sm" | "md";
+  }) => {
+    const cls = size === "md" ? "size-14" : "size-8";
+    if (ext === "pdf") return <FaFilePdf className={`${cls} text-red-600`} />;
+    if (ext === "doc" || ext === "docx")
+      return <FaFileWord className={`${cls} text-dark-blue-600`} />;
+    return <FileIcon className={`${cls} text-muted-foreground`} />;
+  };
+
   return (
     <ProfileContentCard className="border-border bg-card relative rounded-lg border p-5 shadow-none md:p-6">
       <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
         Resume
       </h1>
+
+      {/* ── Saved resume card (shown when no pending file is selected) ── */}
+      {displayedResume && !pendingFile && (
+        <div className="bg-muted/50 mb-4 flex items-center justify-between rounded-lg border p-4">
+          <div className="flex items-center gap-3">
+            <div className="border-border bg-muted flex h-24 w-24 flex-col items-center justify-center gap-1 rounded border">
+              <FileTypeIcon ext={getExtension(displayedResume.path)} />
+            </div>
+            <div className="flex flex-col">
+              <span className="max-w-[400px] truncate text-sm font-medium">
+                {savedResume?.name
+                  ? savedResume?.name
+                  : fileNameFromPath(displayedResume.path)}
+              </span>
+              <span className="text-muted-foreground text-xs">
+                {formatBytes(displayedResume.size)} &middot; Uploaded{" "}
+                {new Date(displayedResume.createdAt).toLocaleDateString()}
+              </span>
+              <a
+                href={`${process.env.NEXT_PUBLIC_API_URL}/${displayedResume.path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-dark-blue-700 mt-0.5 text-xs underline"
+              >
+                View resume
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -166,7 +242,8 @@ export function ResumeUploadForm() {
               <FormItem>
                 <FormControl>
                   <div className="space-y-3">
-                    {!fileName ? (
+                    {!pendingFile ? (
+                      /* ── Drop zone ── */
                       <label
                         htmlFor="resume-upload"
                         className="border-muted-foreground/25 bg-muted/50 hover:bg-muted flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors"
@@ -175,7 +252,9 @@ export function ResumeUploadForm() {
                           <Upload className="text-muted-foreground mb-2 h-8 w-8" />
                           <p className="text-muted-foreground text-sm">
                             <span className="font-semibold">
-                              Click to upload
+                              {displayedResume
+                                ? "Replace resume"
+                                : "Click to upload"}
                             </span>{" "}
                             or drag and drop
                           </p>
@@ -193,38 +272,21 @@ export function ResumeUploadForm() {
                         />
                       </label>
                     ) : (
+                      /* ── Pending file preview ── */
                       <div className="bg-muted/50 flex items-center justify-between rounded-lg border p-4">
                         <div className="flex items-center gap-3">
-                          {previewUrl ? (
-                            <Image
-                              src={previewUrl || "/placeholder.svg"}
-                              alt={fileName}
-                              width={32}
-                              height={32}
-                              className="relative mx-auto h-auto w-40 rounded border object-cover p-1"
-                              unoptimized
+                          <div className="border-border bg-muted flex h-24 w-24 flex-col items-center justify-center gap-2 rounded border">
+                            <FileTypeIcon
+                              ext={getExtension(pendingFile.name)}
                             />
-                          ) : (
-                            <div className="border-border bg-muted flex h-24 w-24 flex-col items-center justify-center gap-2 rounded border">
-                              {fileName.toLowerCase().endsWith(".pdf") ? (
-                                <FaFilePdf className="size-14 text-red-600" />
-                              ) : fileName.toLowerCase().endsWith(".doc") ||
-                                fileName.toLowerCase().endsWith(".docx") ? (
-                                <FaFileWord className="text-dark-blue-600 h-10 w-10" />
-                              ) : (
-                                <FileIcon className="text-muted-foreground h-10 w-10" />
-                              )}
-                              {/* <span className="text-muted-foreground text-xs font-semibold uppercase">
-                                {fileName.split(".").pop()}
-                              </span> */}
-                            </div>
-                          )}
+                          </div>
                           <div className="flex flex-col">
                             <span className="max-w-[400px] truncate text-sm font-medium">
-                              {fileName}
+                              {pendingFile.name}
                             </span>
                             <span className="text-muted-foreground text-xs">
-                              Ready to upload
+                              {formatBytes(pendingFile.size)} &middot; Ready to
+                              upload
                             </span>
                           </div>
                         </div>
@@ -246,7 +308,7 @@ export function ResumeUploadForm() {
                     </p>
 
                     <div className="flex justify-between">
-                      {fileName && (
+                      {pendingFile && (
                         <label
                           htmlFor="resume-change"
                           className="bg-dark-blue-700 hover:text-primary/80 inline-flex cursor-pointer items-center rounded-sm px-4 py-2 text-base font-medium text-white transition-colors"
@@ -262,11 +324,11 @@ export function ResumeUploadForm() {
                           />
                         </label>
                       )}
-                      <div>
+                      <div className={pendingFile ? "" : "ml-auto"}>
                         <Button
                           type="submit"
                           className="text-base font-semibold"
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || !pendingFile}
                         >
                           {isSubmitting ? (
                             <>
@@ -276,7 +338,7 @@ export function ResumeUploadForm() {
                           ) : (
                             <>
                               <Upload className="mr-1 size-5" />
-                              Uplaod Resume
+                              Upload Resume
                             </>
                           )}
                         </Button>

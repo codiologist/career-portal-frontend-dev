@@ -3,6 +3,7 @@
 import { CandidateAchievement } from "./achievement-types";
 import { TUserAddress } from "./address-types";
 import { TUserDocument } from "./document-types";
+import { TCandidateEducation } from "./education-types";
 import { CandidateExperiences } from "./experience-types";
 import { CandidateReferences } from "./reference-types";
 
@@ -28,6 +29,7 @@ export interface TUserData {
   candidateExperiences: CandidateExperiences;
   candidateReferences: CandidateReferences; // ✅ FIXED
   candidateAchievements: CandidateAchievement[]; // ✅ FIXED
+  candidateEducations: TCandidateEducation[]; // ✅ FIXED
   addresses: TUserAddress[];
 }
 

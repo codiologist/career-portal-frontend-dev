@@ -38,6 +38,7 @@ interface AchievementCardProps {
 const acheievementsTypeOptions: SelectOption[] = [
   { label: "Professional Certification", value: "PROFESSIONAL_CERTIFICATION" },
   { label: "Training", value: "TRAINING" },
+  { label: "Workshop", value: "WORKSHOP" },
 ];
 
 const currentYear = new Date().getFullYear();

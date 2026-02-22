@@ -8,117 +8,167 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axiosInstance";
+import { TGetMyProfileResponse } from "@/types/profile-types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileIcon, FolderOpen, Loader2, Upload, X } from "lucide-react";
+import { FolderOpen, Loader2, Upload, X } from "lucide-react";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { FaFilePdf, FaFileWord } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import * as z from "zod";
 import ProfileContentCard from "../../../_components/profile-content-card";
 
 const MAX_FILE_SIZE = 800 * 1024; // 800KB
-const ACCEPTED_FILE_TYPES = [
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "image/jpeg",
-  "image/png",
-];
-
+const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png"];
 const ACCEPTED_EXTENSIONS = ".jpg,.jpeg,.png";
 
 const formSchema = z.object({
+  name: z.enum(["SIGNATURE"]),
   signature: z
     .instanceof(File, { message: "Please upload a signature file" })
     .refine(
       (file) => file.size <= MAX_FILE_SIZE,
-      "File size must be less than 500KB",
+      "File size must be less than 800KB",
     )
     .refine(
       (file) => ACCEPTED_FILE_TYPES.includes(file.type),
-      "File must be JPG, or PNG",
+      "File must be JPG or PNG",
     ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
+type SignatureDocument = {
+  id: string;
+  type: string;
+  path: string;
+  size: number;
+  mimeType: string;
+  createdAt: string;
+  name: string | null;
+};
+
+/** Formats bytes to a human-readable string */
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export function SignatureUploadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [pendingPreviewUrl, setPendingPreviewUrl] = useState<string | null>(
+    null,
+  );
+  const [uploadedSignature, setUploadedSignature] =
+    useState<SignatureDocument | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Adjust destructure to match your AuthContext exports
+  const { user, refetchUser } = useAuth() as {
+    user: TGetMyProfileResponse | null;
+    refetchUser: () => Promise<void>;
+  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    defaultValues: { name: "SIGNATURE", signature: undefined },
   });
+
+  // Saved signature from the user profile
+  const savedSignature = (user as TGetMyProfileResponse)?.data?.documents?.find(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (doc) => doc.type === ("SIGNATURE" as any),
+  ) as SignatureDocument | undefined;
+
+  // Prefer optimistic uploadedSignature, fall back to profile data
+  const displayedSignature = uploadedSignature ?? savedSignature ?? null;
+
+  // Clear optimistic state once refetch confirms the profile is up to date
+  useEffect(() => {
+    if (
+      savedSignature &&
+      uploadedSignature &&
+      savedSignature.id === uploadedSignature.id
+    ) {
+      setUploadedSignature(null);
+    }
+  }, [savedSignature, uploadedSignature]);
+
+  // Revoke blob URL on unmount to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
+    };
+  }, [pendingPreviewUrl]);
 
   const handleFileChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     onChange: (file: File) => void,
   ) => {
     const file = event.target.files?.[0];
-    if (file) {
-      setFileName(file.name);
-      onChange(file);
+    if (!file) return;
 
-      // Generate preview for image files
-      if (file.type.startsWith("image/")) {
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-      } else {
-        setPreviewUrl(null);
-      }
+    // Revoke previous blob URL before creating a new one
+    if (pendingPreviewUrl) URL.revokeObjectURL(pendingPreviewUrl);
 
-      console.log(previewUrl);
+    setPendingFile(file);
+    onChange(file);
+
+    if (file.type.startsWith("image/")) {
+      setPendingPreviewUrl(URL.createObjectURL(file));
+    } else {
+      setPendingPreviewUrl(null);
     }
   };
 
   const handleRemoveFile = () => {
-    setFileName(null);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
+    if (pendingPreviewUrl) {
+      URL.revokeObjectURL(pendingPreviewUrl);
+      setPendingPreviewUrl(null);
     }
+    setPendingFile(null);
     form.setValue("signature", undefined as unknown as File);
     form.clearErrors("signature");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-
-    // Log the submitted data
-    console.log("Submitted data:", {
-      name: data.signature.name,
-      fileSize: data.signature.size,
-      fileType: data.signature.type,
-      file: data.signature,
-    });
-
     try {
       const formData = new FormData();
+      formData.append("name", data.name);
       formData.append("signature", data.signature);
 
-      // Replace this URL with your actual backend API endpoint
       const response = await api.post("/upload/user/signature", formData);
 
-      if (response.status !== 200) {
+      if (response.status !== 201)
         throw new Error("Failed to upload signature");
+
+      // Optimistically store the returned document to update UI immediately
+      const returnedDoc: SignatureDocument =
+        response.data?.data?.document ?? response.data?.document ?? null;
+
+      if (returnedDoc) {
+        setUploadedSignature(returnedDoc);
       }
+
+      // Refetch user profile to sync AuthContext
+      await refetchUser();
 
       toast.success("Signature uploaded successfully!");
 
-      // Reset form after successful submission
-      form.reset();
-      setFileName(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      // Clear pending file state
+      if (pendingPreviewUrl) {
+        URL.revokeObjectURL(pendingPreviewUrl);
+        setPendingPreviewUrl(null);
       }
+      setPendingFile(null);
+      form.reset();
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Upload error:", error);
       toast.error(
@@ -131,13 +181,54 @@ export function SignatureUploadForm() {
     }
   };
 
+  const savedImageUrl = displayedSignature
+    ? `${process.env.NEXT_PUBLIC_API_URL}/${displayedSignature.path}`
+    : null;
+
   return (
     <ProfileContentCard className="border-border bg-card relative rounded-lg border p-5 shadow-none md:p-6">
       <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
         Signature
       </h1>
+
+      {/* ── Saved signature preview (shown when no pending file is selected) ── */}
+      {displayedSignature && savedImageUrl && !pendingFile && (
+        <div className="bg-muted/50 mb-4 flex items-start gap-4 rounded-lg border p-4">
+          <div className="border-border flex h-24 w-48 items-center justify-center rounded border bg-white p-2">
+            <Image
+              src={savedImageUrl}
+              alt="Saved signature"
+              width={176}
+              height={80}
+              className="h-full w-full object-contain"
+              unoptimized
+            />
+          </div>
+          <div className="flex flex-col justify-center gap-1">
+            <span className="text-sm font-medium">Current Signature</span>
+            <span className="text-muted-foreground text-xs">
+              {formatBytes(displayedSignature.size)} &middot; Uploaded{" "}
+              {new Date(displayedSignature.createdAt).toLocaleDateString()}
+            </span>
+            <a
+              href={savedImageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-dark-blue-700 mt-0.5 text-xs underline"
+            >
+              View full size
+            </a>
+          </div>
+        </div>
+      )}
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit, (err) => {
+            console.log("Validation Errors:", err);
+          })}
+          className="space-y-6"
+        >
           <FormField
             control={form.control}
             name="signature"
@@ -146,7 +237,8 @@ export function SignatureUploadForm() {
               <FormItem>
                 <FormControl>
                   <div className="space-y-3">
-                    {!fileName ? (
+                    {!pendingFile ? (
+                      /* ── Drop zone ── */
                       <label
                         htmlFor="signature-upload"
                         className="border-muted-foreground/25 bg-muted/50 hover:bg-muted flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors"
@@ -155,7 +247,9 @@ export function SignatureUploadForm() {
                           <Upload className="text-muted-foreground mb-2 h-8 w-8" />
                           <p className="text-muted-foreground text-sm">
                             <span className="font-semibold">
-                              Click to upload
+                              {displayedSignature
+                                ? "Replace signature"
+                                : "Click to upload"}
                             </span>{" "}
                             or drag and drop
                           </p>
@@ -173,40 +267,28 @@ export function SignatureUploadForm() {
                         />
                       </label>
                     ) : (
+                      /* ── Pending file preview ── */
                       <div className="bg-muted/50 flex items-center justify-between rounded-lg border p-4">
                         <div className="flex items-center gap-3">
-                          {/* {getFileIcon()} */}
-
-                          {previewUrl ? (
-                            <Image
-                              src={previewUrl || "/placeholder.svg"}
-                              alt={fileName}
-                              width={32}
-                              height={32}
-                              className="relative mx-auto h-auto w-40 rounded border object-cover p-1"
-                              unoptimized
-                            />
-                          ) : (
-                            <div className="border-border bg-muted flex h-24 w-24 flex-col items-center justify-center gap-2 rounded border">
-                              {fileName.toLowerCase().endsWith(".pdf") ? (
-                                <FaFilePdf className="size-14 text-red-600" />
-                              ) : fileName.toLowerCase().endsWith(".doc") ||
-                                fileName.toLowerCase().endsWith(".docx") ? (
-                                <FaFileWord className="text-dark-blue-600 h-10 w-10" />
-                              ) : (
-                                <FileIcon className="text-muted-foreground h-10 w-10" />
-                              )}
-                              {/* <span className="text-muted-foreground text-xs font-semibold uppercase">
-                                {fileName.split(".").pop()}
-                              </span> */}
+                          {pendingPreviewUrl ? (
+                            <div className="border-border flex h-24 w-48 items-center justify-center rounded border bg-white p-2">
+                              <Image
+                                src={pendingPreviewUrl}
+                                alt={pendingFile.name}
+                                width={176}
+                                height={80}
+                                className="h-full w-full object-contain"
+                                unoptimized
+                              />
                             </div>
-                          )}
+                          ) : null}
                           <div className="flex flex-col">
-                            <span className="max-w-[400px] truncate text-sm font-medium">
-                              {fileName}
+                            <span className="max-w-[300px] truncate text-sm font-medium">
+                              {pendingFile.name}
                             </span>
                             <span className="text-muted-foreground text-xs">
-                              Ready to upload
+                              {formatBytes(pendingFile.size)} &middot; Ready to
+                              upload
                             </span>
                           </div>
                         </div>
@@ -224,11 +306,11 @@ export function SignatureUploadForm() {
                     )}
 
                     <p className="text-muted-foreground text-sm">
-                      Upload your signature in JPG, or PNG format (max 500KB)
+                      Upload your signature in JPG or PNG format (max 800KB)
                     </p>
 
                     <div className="flex justify-between">
-                      {fileName && (
+                      {pendingFile && (
                         <label
                           htmlFor="signature-change"
                           className="bg-dark-blue-700 hover:text-primary/80 inline-flex cursor-pointer items-center rounded-sm px-4 py-2 text-base font-medium text-white transition-colors"
@@ -244,11 +326,11 @@ export function SignatureUploadForm() {
                           />
                         </label>
                       )}
-                      <div>
+                      <div className={pendingFile ? "" : "ml-auto"}>
                         <Button
                           type="submit"
                           className="text-base font-semibold"
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || !pendingFile}
                         >
                           {isSubmitting ? (
                             <>
@@ -258,7 +340,7 @@ export function SignatureUploadForm() {
                           ) : (
                             <>
                               <Upload className="mr-1 size-5" />
-                              Uplaod Signature
+                              Upload Signature
                             </>
                           )}
                         </Button>

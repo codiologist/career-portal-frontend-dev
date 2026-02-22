@@ -82,7 +82,7 @@ export function ProfileImageUploader({
   const form = useForm<ImageUploadFormValues>({
     resolver: zodResolver(imageUploadSchema),
     defaultValues: {
-      name: "avatar",
+      name: "Avatar",
       image: undefined,
     },
   });
@@ -139,7 +139,7 @@ export function ProfileImageUploader({
         console.log("Avatar Response:", response);
         toast.success("Avatar uploaded successfully!");
 
-        if (response.status !== 200) {
+        if (response.status !== 201) {
           throw new Error("Upload failed");
         }
       }

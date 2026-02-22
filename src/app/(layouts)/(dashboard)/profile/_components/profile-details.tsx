@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import AchievementCard from "./achievement-card";
 import CareerObjectivCard from "./career-objective-card";
 import ContactInfoCard from "./contact-info-card";
+import EducationalInfoCard from "./educational-info-card";
 import ExperienceInfoCard from "./experience-info-card";
 import { InterestsCard } from "./intertest-card";
 import IntroCard from "./intro-card";
@@ -38,7 +39,7 @@ const ProfileDetails = () => {
             content={user?.data?.candidatePersonal?.careerObjective}
           />
           <ExperienceInfoCard experiences={user?.data?.candidateExperiences} />
-          {/* <EducationalInfoCard /> */}
+          <EducationalInfoCard educations={user?.data?.candidateEducations} />
           <SkillsInfoCard skills={user?.data?.candidatePersonal?.skills} />
           <AchievementCard achievements={user?.data?.candidateAchievements} />
           <ReferenceInfo references={user?.data?.candidateReferences} />

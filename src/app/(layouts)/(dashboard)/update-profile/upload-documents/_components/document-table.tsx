@@ -13,13 +13,14 @@ import withReactContent from "sweetalert2-react-content";
 import ProfileContentCard from "../../../_components/profile-content-card";
 
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns/format";
 import { Trash2 } from "lucide-react";
 
 const DocumentTable = () => {
   const { user } = useAuth();
   const documents = user?.data?.documents || [];
   const filteredDocuments = documents.filter(
-    (doc) => (doc.type as unknown as string) === "OTHER",
+    (doc) => (doc.folderName as unknown as string) === "document",
   );
   console.log(filteredDocuments);
 
@@ -47,8 +48,8 @@ const DocumentTable = () => {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[50px]">#</TableHead>
-              <TableHead>ID</TableHead>
-              <TableHead>Type</TableHead>
+              {/* <TableHead>ID</TableHead> */}
+              <TableHead>Document Type</TableHead>
               <TableHead>Document No</TableHead>
               <TableHead>Issue Date</TableHead>
               <TableHead>Issue Authority</TableHead>
@@ -62,10 +63,12 @@ const DocumentTable = () => {
                 <TableCell className="text-muted-foreground font-medium">
                   {index + 1}
                 </TableCell>
-                <TableCell>{doc.id}</TableCell>
+                {/* <TableCell>{doc.id}</TableCell> */}
                 <TableCell>{doc.name}</TableCell>
                 <TableCell>{doc.documentNo}</TableCell>
-                <TableCell>{doc.issueDate}</TableCell>
+                <TableCell>
+                  {format(new Date(doc.issueDate), "dd-MM-yyyy")}
+                </TableCell>
                 <TableCell>{doc.issueAuthority}</TableCell>
                 <TableCell>
                   {doc.remarks ? doc.remarks : "No remarks"}

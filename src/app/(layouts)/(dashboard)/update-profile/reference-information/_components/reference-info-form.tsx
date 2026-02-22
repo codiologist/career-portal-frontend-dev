@@ -75,7 +75,7 @@ export default function ReferenceInfoForm() {
           ? referencesFromApi.map((reference: CandidateReference) => ({
               name: reference.name ?? "",
               emailAddress: reference.emailAddress ?? "",
-              companyName: reference.designation ?? "",
+              companyName: reference.companyName ?? "",
               phone: reference.phone ?? "",
               designation: reference.designation ?? "",
               relationship: reference.relationship ?? "",

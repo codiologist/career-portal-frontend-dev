@@ -3,16 +3,22 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
 import { formatUserName } from "@/utils/format-name";
-import { ChevronDown, LogOutIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
+import { ChevronDown, LogOutIcon, User } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
 const ProfileButton = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isRoot = pathname === "/";
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -21,6 +27,7 @@ const ProfileButton = () => {
       console.error("Logout failed:", error);
     }
   };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -42,15 +49,22 @@ const ProfileButton = () => {
           <ChevronDown className="ml-1 h-5 w-5 text-gray-600 transition-all duration-300" />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {/* <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                    <BadgeCheckIcon />
-                                    Account
-                                </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                            <DropdownMenuSeparator /> */}
 
+      <DropdownMenuContent align="end">
+        {isRoot && (
+          <>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => router.push("/profile")}
+              >
+                <User />
+                Profile
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+          </>
+        )}
         {isAuthenticated && (
           <DropdownMenuItem
             className="cursor-pointer"
