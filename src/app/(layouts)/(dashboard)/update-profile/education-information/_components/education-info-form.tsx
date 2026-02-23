@@ -97,10 +97,6 @@ export default function EducationInfoForm() {
         certificateIndex: index,
       }));
 
-      // ✅ FIX: key each file by its position so the server knows which
-      // education entry it belongs to. Entries where the user kept the old
-      // certificate have no file appended; the server uses existingCertificateUrl
-      // for those.
       data.educations.forEach((education) => {
         if (education.certificate instanceof File) {
           formData.append(`certificate`, education.certificate);

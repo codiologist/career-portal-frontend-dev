@@ -4,19 +4,26 @@ const MAX_FILE_SIZE = 500 * 1024; // 500KB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const HIDE_MARKS: string[] = ["Appeared", "Pass"];
 const LEVEL_SSC_HSC: string[] = ["Secondary", "Higher Secondary"];
-const LEVEL_PHD: string[] = ["PhD"];
+const LEVEL_WITHOUT_PHD: string[] = [
+  "Secondary",
+  "Higher Secondary",
+  "Diploma",
+  "Bachelor/Honors",
+  "Postgraduate",
+];
+// const LEVEL_PHD: string[] = ["PhD"];
 
 const educationEntrySchema = z
   .object({
     levelOfEducationId: z.string().min(1, "Level of education is required"),
     levelName: z.string().optional(), // ← hidden field synced by the card
-    degreeNameId: z.string().min(1, "Degree name is required"),
+    degreeNameId: z.string().optional(),
     educationBoardId: z.string().optional(),
     majorGroupId: z.string().optional(),
     subjectName: z.string().optional(),
+    totalMarksCGPA: z.string().optional(),
     instituteName: z.string().min(1, "Institute name is required"),
     resultTypeId: z.string().min(1, "Result type is required"),
-    totalMarksCGPA: z.string().optional(),
     yearOfPassing: z.string().min(1, "Year of passing is required"),
     certificate: z.any(),
     // ← tracks the server-side URL when no new file is uploaded
@@ -38,12 +45,32 @@ const educationEntrySchema = z
       }
     }
 
+    if (isSSCorHSC) {
+      if (!data.majorGroupId || data.majorGroupId.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Major group is required",
+          path: ["majorGroupId"],
+        });
+      }
+    }
+
     if (!isSSCorHSC) {
       if (!data.subjectName || data.subjectName.trim() === "") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "Subject name is required",
           path: ["subjectName"],
+        });
+      }
+    }
+
+    if (LEVEL_WITHOUT_PHD.includes(data.levelName ?? "")) {
+      if (!data.degreeNameId || data.degreeNameId.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Degree name is required",
+          path: ["degreeNameId"],
         });
       }
     }

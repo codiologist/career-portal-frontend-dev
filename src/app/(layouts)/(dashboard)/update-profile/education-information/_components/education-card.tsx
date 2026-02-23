@@ -36,8 +36,8 @@ export default function EducationCard({
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [certificateError, setCertificateError] = useState<string | null>(null);
-  const prevLevelId = useRef<string>("");
-  const prevDegreeId = useRef<string>("");
+  const prevLevelId = useRef<string | undefined>(undefined);
+  const prevDegreeId = useRef<string | undefined>(undefined);
 
   // ── Watched field values ────────────────────────────────────────────────────
   const watchedLevelId = form.watch(`educations.${index}.levelOfEducationId`);
@@ -67,7 +67,7 @@ export default function EducationCard({
 
   // ── Derived display state ───────────────────────────────────────────────────
   const selectedLevel = levels.find((l) => l.id === watchedLevelId);
-  const isSSCorHS = selectedLevel
+  const isSSCorHSC = selectedLevel
     ? ["Secondary", "Higher Secondary"].includes(selectedLevel.levelName)
     : false;
 
@@ -156,7 +156,7 @@ export default function EducationCard({
     form.setValue(`educations.${index}.resultTypeId`, "");
     form.setValue(`educations.${index}.totalMarksCGPA`, "");
 
-    if (!isSSCorHS) {
+    if (!isSSCorHSC) {
       form.setValue(`educations.${index}.subjectName`, "");
       form.clearErrors(`educations.${index}.subjectName`);
       form.clearErrors(`educations.${index}.educationBoardId`);
@@ -170,7 +170,7 @@ export default function EducationCard({
 
     if (!prev || prev === watchedDegreeId) return;
 
-    if (!isSSCorHS) {
+    if (!isSSCorHSC) {
       form.setValue(`educations.${index}.educationBoardId`, "");
     }
     form.setValue(`educations.${index}.majorGroupId`, "");
@@ -292,7 +292,7 @@ export default function EducationCard({
         />
 
         {/* Education Board — only shown for Secondary / Higher Secondary */}
-        {isSSCorHS && (
+        {isSSCorHSC && (
           <SelectInput
             form={form}
             name={`educations.${index}.educationBoardId`}
@@ -305,18 +305,21 @@ export default function EducationCard({
         )}
 
         {/* Major / Group */}
-        <SelectInput
-          form={form}
-          name={`educations.${index}.majorGroupId`}
-          label="Major/Group"
-          placeholder={loadingMeta ? "Loading…" : "Select major/group"}
-          options={majorGroupOptions}
-          required
-          disabled={!watchedDegreeId || loadingMeta}
-        />
+        {/* Major / Group — required for non-SSC/HSC levels */}
+        {isSSCorHSC && (
+          <SelectInput
+            form={form}
+            name={`educations.${index}.majorGroupId`}
+            label="Major/Group"
+            placeholder={loadingMeta ? "Loading…" : "Select major/group"}
+            options={majorGroupOptions}
+            required
+            disabled={!watchedDegreeId || loadingMeta}
+          />
+        )}
 
         {/* Subject Name — required for non-SSC/HSC levels */}
-        {!isSSCorHS && (
+        {!isSSCorHSC && (
           <TextInput
             form={form}
             name={`educations.${index}.subjectName`}
