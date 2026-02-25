@@ -24,11 +24,14 @@ const SidebarNavItems = () => {
     if (!subItem.score) return 0;
 
     // Personal Info combines candidatePersonal + resume + signature
+    // All three must individually have a score > 0 AND total must equal 40
     if (subItem.href === "/update-profile/personal-information") {
       const personal = Number(breakdown.candidatePersonal) || 0;
       const resume = Number(breakdown.resume) || 0;
       const signature = Number(breakdown.signature) || 0;
-      return personal + resume + signature;
+      const allFilled = personal > 0 && resume > 0 && signature > 0;
+      const total = personal + resume + signature;
+      return allFilled && total === 40 ? 40 : 0;
     }
 
     // Address Info → addresses
@@ -162,10 +165,10 @@ const SidebarNavItems = () => {
                           key={subItem.menu_name}
                           href={subItem.href}
                           className={cn(
-                            "flex cursor-pointer items-center rounded-xs py-2 pl-4 font-semibold transition-all duration-300 ease-out hover:translate-x-1",
+                            "group flex cursor-pointer items-center rounded-xs py-2 pl-4 font-semibold transition-all duration-300 ease-out hover:translate-x-1 hover:pr-1",
                             isActive
-                              ? "bg-primary translate-x-1 text-white"
-                              : "text-primary hover:bg-primary hover:text-white",
+                              ? "bg-primary translate-x-1 pr-1 text-white"
+                              : "text-primary hover:bg-primary group-hover:pr-2 hover:text-white",
                           )}
                         >
                           {subItem.icon ? (
@@ -175,20 +178,20 @@ const SidebarNavItems = () => {
 
                           {/* Score status icon */}
                           {hasScoreField && (
-                            <span className="mr-2 ml-2 shrink-0">
+                            <span className="ml-2 shrink-0 pr-2">
                               {isCompleted ? (
                                 <CheckCircle
-                                  size={16}
                                   className={cn(
-                                    "transition-colors",
-                                    isActive ? "text-white" : "text-green-500",
+                                    "size-4.5 transition-colors",
+                                    isActive
+                                      ? "text-white"
+                                      : "text-green-600 group-hover:text-white",
                                   )}
                                 />
                               ) : (
                                 <XCircle
-                                  size={16}
                                   className={cn(
-                                    "transition-colors",
+                                    "size-4.5 transition-colors",
                                     isActive ? "text-white" : "text-red-400",
                                   )}
                                 />

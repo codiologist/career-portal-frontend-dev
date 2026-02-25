@@ -15,10 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  type AddressInitialValues,
-  useAddressDropdown,
-} from "@/hooks/useAddressDropdown";
+import { useAddressDropdown } from "@/hooks/useAddressDropdown";
+import { AddressInitialValues } from "@/types/address-types";
 import { Loader2 } from "lucide-react";
 import type { UseFormReturn } from "react-hook-form";
 
@@ -121,7 +119,7 @@ export function AddressFields({
 
   return (
     <>
-      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
         {/* Division */}
         <FormField
           control={form.control}

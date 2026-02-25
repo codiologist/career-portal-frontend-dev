@@ -108,27 +108,56 @@ export type TUserAddress = {
   postOffice: TPostOfficeInfo | null;
 };
 
-/* =========================================================
-   FORM STATE TYPE (STRING BASED)
-   React Hook Form Select always returns string
-========================================================= */
+// ─── Merged List Types ────────────────────────────────────────────────────────
+// Upazila interface এ type: "UPAZILA" | "CITY_CORPORATION" আগে থেকেই আছে।
+// CityCorporation এ নেই — তাই merged list এর জন্য type যোগ করি।
+export type MergedUpazila =
+  | Upazila
+  | (CityCorporation & { type: "CITY_CORPORATION" });
 
-export type AddressFormValues = {
-  divisionId: string;
-  districtId: string;
+// Union ও Municipality তে type নেই — তাই intersection দরকার।
+export type MergedUnionMunicipality =
+  | (Union & { type: "UNION" })
+  | (Municipality & { type: "MUNICIPALITY" });
 
+// ─── Public Interface ─────────────────────────────────────────────────────────
+export interface AddressInitialValues {
+  divisionId?: string;
+  districtId?: string;
   upazilaId?: string;
   cityCorporationId?: string;
-
   unionParishadId?: string;
   municipalityId?: string;
-
-  policeStationId: string;
-  postOfficeId: string;
-
+  policeStationId?: string;
+  postOfficeId?: string;
   wardNo?: string;
-  addressLine: string;
-};
+  addressLine?: string;
+}
+
+export interface FetchParams {
+  divisionId?: string;
+  districtId?: string;
+  upazilaId?: string;
+}
+
+// ─── State Shape ─────────────────────────────────────────────────────────────
+
+export interface DropdownState {
+  divisions: Division[];
+  districts: District[];
+  upazilas: MergedUpazila[];
+  policeStations: PoliceStation[];
+  postOffices: PostOffice[];
+  unionsMunicipalities: MergedUnionMunicipality[];
+  loading: {
+    division: boolean;
+    district: boolean;
+    upazila: boolean;
+    policeStation: boolean;
+    postOffice: boolean;
+    unionMunicipality: boolean;
+  };
+}
 
 /* =========================================================
    API SUBMIT PAYLOAD (NUMBER BASED)
@@ -137,16 +166,12 @@ export type AddressFormValues = {
 export type TAddressPayload = {
   divisionId: number;
   districtId: number;
-
   upazilaId?: number | null;
   cityCorporationId?: number | null;
-
   unionParishadId?: number | null;
   municipalityId?: number | null;
-
   policeStationId: number;
   postOfficeId: number;
-
   wardNo?: string | null;
   addressLine: string;
 };

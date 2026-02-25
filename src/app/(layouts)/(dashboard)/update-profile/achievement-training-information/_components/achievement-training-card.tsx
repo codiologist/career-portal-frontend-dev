@@ -28,13 +28,6 @@ import {
   TextInput,
 } from "../../_components/form-inputs";
 
-interface AchievementCardProps {
-  index: number;
-  form: UseFormReturn<AchievementInfoFormValues>;
-  onRemove: () => void;
-  canRemove: boolean;
-}
-
 const acheievementsTypeOptions: SelectOption[] = [
   { label: "Professional Certification", value: "PROFESSIONAL_CERTIFICATION" },
   { label: "Training", value: "TRAINING" },
@@ -50,11 +43,20 @@ const yearOptions: SelectOption[] = Array.from(
   },
 );
 
+interface AchievementCardProps {
+  index: number;
+  form: UseFormReturn<AchievementInfoFormValues>;
+  onRemove: () => void;
+  canRemove: boolean;
+  existingCertificateName?: string;
+}
+
 export default function AchievementTrainingCard({
   index,
   form,
   onRemove,
   canRemove,
+  existingCertificateName,
 }: AchievementCardProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [certificateError, setCertificateError] = useState<string | null>(null);
@@ -303,7 +305,9 @@ export default function AchievementTrainingCard({
             </Button>
           </div>
 
-          <p className="mt-2 text-sm font-semibold">{previewLabel}</p>
+          <p className="mt-2 text-sm font-semibold">
+            {existingCertificateName}
+          </p>
         </div>
       )}
     </div>

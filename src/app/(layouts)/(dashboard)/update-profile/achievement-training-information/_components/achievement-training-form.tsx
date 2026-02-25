@@ -21,6 +21,9 @@ import AchievementTrainingCard from "./achievement-training-card";
 
 export default function AchievementTrainingForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [existingCertificateUrls, setExistingCertificateUrls] = useState<
+    { name?: string | undefined; url?: string | undefined }[]
+  >([]);
   const { user } = useAuth();
 
   const form = useForm<AchievementInfoFormValues>({
@@ -55,6 +58,15 @@ export default function AchievementTrainingForm() {
             achievementId: item.id ?? "",
           }))
         : [{ ...defaultAchievement }];
+
+    setExistingCertificateUrls(
+      rawAchievements?.length > 0
+        ? rawAchievements.map((item: CandidateAchievement) => ({
+            name: item.documents?.[0]?.name ?? undefined,
+            url: item.documents?.[0]?.path ?? undefined,
+          }))
+        : [],
+    );
 
     form.reset({ achievements });
   }, [user, form]);
@@ -126,6 +138,7 @@ export default function AchievementTrainingForm() {
                 form={form}
                 onRemove={() => remove(index)}
                 canRemove={fields.length > 1}
+                existingCertificateName={existingCertificateUrls[index]?.name}
               />
             ))}
           </div>

@@ -10,7 +10,6 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { useAuth } from "@/context/AuthContext";
-import type { AddressInitialValues } from "@/hooks/useAddressDropdown";
 import api from "@/lib/axiosInstance";
 import {
   addressFormSchema,
@@ -18,6 +17,7 @@ import {
   transformToSubmitFormat,
   type AddressFormValues,
 } from "@/schemas/address.schema";
+import { AddressInitialValues } from "@/types/address-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Send } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -135,55 +135,57 @@ export function AddressInfoForm() {
     <div className="xl:border-dark-blue-200 xl:bg-dark-blue-200/10 rounded-2xl p-0 xl:border xl:p-4">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* ── Present Address ── */}
-          <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
-            <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
-              Present Address
-            </h1>
-            <AddressFields
-              form={form}
-              prefix="present"
-              initialValues={presentInitial}
-            />
-          </div>
-          {/* ── Permanent Address ── */}
-          <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
-            <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
-              Permanent Address
-            </h1>
-
-            <FormField
-              control={form.control}
-              name="isSameAsPresent"
-              render={({ field }) => (
-                <FormItem className="mb-5 flex items-center gap-2">
-                  <FormControl>
-                    <Checkbox
-                      className="h-5 w-5"
-                      checked={!!field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className="text-foreground !mt-0 cursor-pointer text-base font-semibold">
-                    Permanent address is same as present address
-                  </FormLabel>
-                </FormItem>
-              )}
-            />
-
-            {!isSameAsPresent && (
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+            {/* ── Present Address ── */}
+            <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
+              <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
+                Present Address
+              </h1>
               <AddressFields
                 form={form}
-                prefix="permanent"
-                initialValues={permanentInitial}
+                prefix="present"
+                initialValues={presentInitial}
               />
-            )}
+            </div>
+            {/* ── Permanent Address ── */}
+            <div className="border-border bg-card relative rounded-lg border p-5 md:p-6">
+              <h1 className="text-dark-blue-700 mb-4 text-lg font-bold xl:text-2xl">
+                Permanent Address
+              </h1>
 
-            {isSameAsPresent && (
-              <p className="border-border bg-muted text-muted-foreground rounded-lg border px-4 py-3 text-sm">
-                Permanent address will be the same as your present address.
-              </p>
-            )}
+              <FormField
+                control={form.control}
+                name="isSameAsPresent"
+                render={({ field }) => (
+                  <FormItem className="mb-5 flex items-center gap-2">
+                    <FormControl>
+                      <Checkbox
+                        className="h-5 w-5"
+                        checked={!!field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="text-foreground !mt-0 cursor-pointer text-base font-semibold">
+                      Permanent address is same as present address
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+
+              {!isSameAsPresent && (
+                <AddressFields
+                  form={form}
+                  prefix="permanent"
+                  initialValues={permanentInitial}
+                />
+              )}
+
+              {isSameAsPresent && (
+                <p className="border-border bg-muted text-muted-foreground rounded-lg border px-4 py-3 text-sm">
+                  Permanent address will be the same as your present address.
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-end">

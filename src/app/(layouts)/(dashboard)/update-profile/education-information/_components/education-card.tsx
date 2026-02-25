@@ -23,6 +23,7 @@ interface EducationCardProps {
   onRemove: () => void;
   canRemove: boolean;
   existingCertificateUrl?: string; // kept for initial preview seed from parent
+  existingCertificateName?: string;
 }
 
 export default function EducationCard({
@@ -31,6 +32,7 @@ export default function EducationCard({
   onRemove,
   canRemove,
   existingCertificateUrl,
+  existingCertificateName,
 }: EducationCardProps) {
   const [mounted, setMounted] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -441,10 +443,7 @@ export default function EducationCard({
             </Button>
           </div>
           <p className="text-dark-blue-800 mt-3 text-sm font-bold">
-            {/* ✅ Show the actual filename for new uploads, or a label for existing ones */}
-            {form.getValues(`educations.${index}.certificate`) instanceof File
-              ? (form.getValues(`educations.${index}.certificate`) as File).name
-              : "Existing Certificate"}
+            {existingCertificateName}
           </p>
         </div>
       )}

@@ -202,7 +202,7 @@ import EducationCard from "./education-card";
 export default function EducationInfoForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [existingCertificateUrls, setExistingCertificateUrls] = useState<
-    (string | undefined)[]
+    { name?: string | undefined; url?: string | undefined }[]
   >([]);
   const { user } = useAuth();
 
@@ -246,10 +246,10 @@ export default function EducationInfoForm() {
 
     setExistingCertificateUrls(
       rawEducations?.length > 0
-        ? rawEducations.map(
-            (item: TCandidateEducation) =>
-              item.documents?.[0]?.path ?? undefined,
-          )
+        ? rawEducations.map((item: TCandidateEducation) => ({
+            name: item.documents?.[0]?.name ?? undefined,
+            url: item.documents?.[0]?.path ?? undefined,
+          }))
         : [],
     );
     form.reset({ educations });
@@ -332,7 +332,8 @@ export default function EducationInfoForm() {
                 form={form}
                 onRemove={() => remove(index)}
                 canRemove={fields.length > 1}
-                existingCertificateUrl={existingCertificateUrls[index]}
+                existingCertificateUrl={existingCertificateUrls[index]?.url}
+                existingCertificateName={existingCertificateUrls[index]?.name}
               />
             ))}
           </div>

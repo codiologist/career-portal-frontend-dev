@@ -4,18 +4,26 @@ import ProfileButton from "@/components/navigation/profile-button";
 import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import MobileSidebar from "./mobile-sidebar";
 import logo from "/public/career-portal-logo.png";
 
 const TopNavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const pathname = usePathname();
   const toggleSidebarMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     if (!isMenuOpen) {
       // setExpandedSections({});
     }
   };
+
+  useEffect(() => {
+    setIsMenuOpen(false); // close sidebar on route change
+  }, [pathname]);
+
   return (
     <>
       <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
