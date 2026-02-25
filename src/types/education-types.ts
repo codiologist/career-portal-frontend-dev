@@ -48,6 +48,7 @@ export type TEducationDocument = {
   documentNo: string | null;
   isDeleted: boolean;
   issueAuthority: string | null;
+  educationId: string;
 };
 
 export type TEducationResponse = TCandidateEducation[];

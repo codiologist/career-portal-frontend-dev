@@ -74,6 +74,7 @@ const DocumentUploadForm = () => {
       const payload = {
         ...data,
         name: data.type.toUpperCase(),
+        isDeleted: false,
         // Format date to YYYY-MM-DD for API
         issueDate: data.issueDate.toISOString(),
       };

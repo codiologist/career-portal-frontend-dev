@@ -30,6 +30,7 @@ const ProfileDetails = () => {
     <div className="relative z-10 mx-auto mt-14 w-full px-0 lg:-mt-14 xl:px-10">
       <IntroCard
         user={userData?.candidatePersonal}
+        profileProgress={userData?.profileProgress}
         documents={userData?.documents}
       />
 

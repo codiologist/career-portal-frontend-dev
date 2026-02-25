@@ -43,7 +43,7 @@ const OtherInfoCard = ({
               <p className="text-dark-blue-700 mb-0 font-semibold">
                 Verification Status
               </p>
-              <p className="font-bold">Verified</p>
+              <p className="font-bold text-green-700">Verified</p>
             </div>
           </li>
           <li className="flex gap-2">

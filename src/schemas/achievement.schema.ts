@@ -15,6 +15,7 @@ const achievementEntrySchema = z
     certificate: z.any(),
     // Populated when editing an existing achievement that already has a saved document
     existingCertificateUrl: z.string().optional(),
+    achievementId: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     // If there is already a saved certificate URL (editing mode) and no new file
@@ -58,6 +59,7 @@ export type AchievementInfoFormValues = z.infer<
 >;
 
 export const defaultAchievement = {
+  achievementId: "",
   achievementType: "",
   title: "",
   organizationName: "",

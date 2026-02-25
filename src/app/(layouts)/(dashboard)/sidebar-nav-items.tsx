@@ -4,14 +4,60 @@ import {
   sidebarNavigationItems,
   SidebarSubMenuItem,
 } from "@/components/navigation/navigation-items";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
-import { ChevronDownCircle } from "lucide-react";
+import { TProfileBreakdown } from "@/types/profile-progress-types";
+import { CheckCircle, ChevronDownCircle, XCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 const SidebarNavItems = () => {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const profileProgress = user?.data?.profileProgress;
+  const breakdown = (profileProgress?.breakdown as TProfileBreakdown) ?? {};
+
+  // Compute effective score per submenu item.
+  // "Personal Info" (score: 20 in nav-items) maps to candidatePersonal + resume + signature
+  const getSubItemScore = (subItem: SidebarSubMenuItem): number => {
+    if (!subItem.score) return 0;
+
+    // Personal Info combines candidatePersonal + resume + signature
+    if (subItem.href === "/update-profile/personal-information") {
+      const personal = Number(breakdown.candidatePersonal) || 0;
+      const resume = Number(breakdown.resume) || 0;
+      const signature = Number(breakdown.signature) || 0;
+      return personal + resume + signature;
+    }
+
+    // Address Info → addresses
+    if (subItem.href === "/update-profile/address-information") {
+      return Number(breakdown.addresses) || 0;
+    }
+
+    // Experience Info → candidateExperiences
+    if (subItem.href === "/update-profile/experience-information") {
+      return Number(breakdown.candidateExperiences) || 0;
+    }
+
+    // Achievements & Training → candidateAchievements
+    if (subItem.href === "/update-profile/achievement-training-information") {
+      return Number(breakdown.candidateAchievements) || 0;
+    }
+
+    // References → candidateReferences
+    if (subItem.href === "/update-profile/reference-information") {
+      return Number(breakdown.candidateReferences) || 0;
+    }
+
+    // Educational Info → candidateEducations
+    if (subItem.href === "/update-profile/education-information") {
+      return Number(breakdown.candidateEducations) || 0;
+    }
+
+    return 0;
+  };
 
   // Check if any submenu item is active for a given parent item
   const isSubMenuActive = useMemo(() => {
@@ -55,7 +101,7 @@ const SidebarNavItems = () => {
   };
 
   return (
-    <div className="flex grow flex-col overflow-y-auto px-4 py-4">
+    <div className="flex grow flex-col overflow-y-auto px-2.5 py-4">
       <nav className="flex-1 space-y-2">
         {sidebarNavigationItems.map((item: SidebarNavigationItem) => (
           <div key={item?.menu_name}>
@@ -97,11 +143,20 @@ const SidebarNavItems = () => {
                     expandedSections[item.menu_name] ? "max-h-200" : "max-h-0",
                   )}
                 >
-                  <div className="mt-2 ml-6 pt-2 pb-0 pl-1">
+                  <div className="mt-0 ml-5 pt-1 pb-0">
                     {item?.subMenuItems?.map((subItem: SidebarSubMenuItem) => {
                       const isActive =
                         pathname === subItem.href ||
                         pathname.startsWith(subItem.href + "/");
+
+                      // Only show score icon if the subItem has a score field defined
+                      const hasScoreField = subItem.score !== undefined;
+                      const effectiveScore = hasScoreField
+                        ? getSubItemScore(subItem)
+                        : null;
+                      const isCompleted =
+                        effectiveScore !== null && effectiveScore > 0;
+
                       return (
                         <Link
                           key={subItem.menu_name}
@@ -114,9 +169,32 @@ const SidebarNavItems = () => {
                           )}
                         >
                           {subItem.icon ? (
-                            <subItem.icon className="mr-3 size-4" />
+                            <subItem.icon className="mr-3 size-4.5 shrink-0" />
                           ) : null}
-                          <span>{subItem.menu_name}</span>
+                          <span className="flex-1">{subItem.menu_name}</span>
+
+                          {/* Score status icon */}
+                          {hasScoreField && (
+                            <span className="mr-2 ml-2 shrink-0">
+                              {isCompleted ? (
+                                <CheckCircle
+                                  size={16}
+                                  className={cn(
+                                    "transition-colors",
+                                    isActive ? "text-white" : "text-green-500",
+                                  )}
+                                />
+                              ) : (
+                                <XCircle
+                                  size={16}
+                                  className={cn(
+                                    "transition-colors",
+                                    isActive ? "text-white" : "text-red-400",
+                                  )}
+                                />
+                              )}
+                            </span>
+                          )}
                         </Link>
                       );
                     })}

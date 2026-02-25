@@ -26,6 +26,8 @@ const educationEntrySchema = z
     resultTypeId: z.string().min(1, "Result type is required"),
     yearOfPassing: z.string().min(1, "Year of passing is required"),
     certificate: z.any(),
+    educationId: z.string().optional(), // ← to track existing entries for update vs create
+
     // ← tracks the server-side URL when no new file is uploaded
     existingCertificateUrl: z.string().optional(),
   })
@@ -142,4 +144,5 @@ export const defaultEducation: EducationInfoFormValues["educations"][number] = {
   yearOfPassing: "",
   certificate: null,
   existingCertificateUrl: "",
+  educationId: "",
 };

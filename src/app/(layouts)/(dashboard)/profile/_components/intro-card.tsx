@@ -1,8 +1,11 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { TUserDocument } from "@/types/document-types";
+import { TProfileProgress } from "@/types/profile-progress-types";
 import { TUserProfile } from "@/types/profile-types";
 import { DownloadIcon } from "lucide-react";
 import Link from "next/link";
@@ -12,11 +15,15 @@ import { ProfileImageUploader } from "./upload-profile-iamge/profile-image-uploa
 
 interface IntroCardProps {
   user: TUserProfile | undefined;
-  documents?: TUserDocument[]; // Adjust the type as needed based on your document structure
+  documents?: TUserDocument[];
+  profileProgress: TProfileProgress | undefined;
 }
 
-const IntroCard = ({ user, documents }: IntroCardProps) => {
+const IntroCard = ({ user, documents, profileProgress }: IntroCardProps) => {
   const [resumeURL, setResumeURL] = useState<string | null>(null);
+
+  const isApplicationComplete =
+    profileProgress?.eligibleForApply.isPossibleJobApply;
 
   const resume = documents?.find(
     (doc: TUserDocument) => (doc.type as unknown as string) === "RESUME",
@@ -36,17 +43,32 @@ const IntroCard = ({ user, documents }: IntroCardProps) => {
             <div className="mt-0 xl:-mt-20">
               <ProfileImageUploader />
             </div>
-            <div className="mt-6 flex-1">
+            <div className="flex-1">
               <div className="flex flex-col items-start xl:flex-row">
                 <div className="w-full text-center lg:text-left xl:w-8/12 2xl:w-9/12">
-                  <h1 className="text-dark-blue-700 font-exo2 mb-1 text-3xl font-extrabold uppercase xl:text-[40px]">
+                  <h1 className="text-dark-blue-700 font-exo2 mb-0 text-3xl font-extrabold uppercase xl:text-[40px]">
                     {user?.fullName}
                   </h1>
-                  <h2 className="mb-2 text-xl font-bold xl:text-2xl">
+                  <h2 className="mb-0 text-xl font-bold xl:text-2xl">
                     {user?.careerTitle}
                   </h2>
+                  {/* {profileProgress?.eligibleForApply.isPossibleJobApply && (
+                  )} */}
+
+                  <Badge
+                    className={cn(
+                      "mt-3 mb-2 px-3 py-0.75",
+                      isApplicationComplete
+                        ? "font-semitbold bg-green-600/10 text-green-700"
+                        : "bg-destructive/10 text-red-700",
+                    )}
+                  >
+                    {isApplicationComplete
+                      ? "You are eligible for applying job."
+                      : "You are not eligible for applying job. Please complete your profile."}
+                  </Badge>
                 </div>
-                <div className="mt-3 w-full text-left xl:mt-0 xl:w-4/12 xl:text-right 2xl:w-3/12">
+                <div className="mt-3 w-full text-center xl:mt-0 xl:w-4/12 xl:text-right 2xl:w-3/12">
                   <Link href={resumeURL ? `${resumeURL}` : "#"} target="_blank">
                     <Button className="bg-dark-blue-700 rounded-xs text-lg font-semibold">
                       <DownloadIcon className="mr-1 size-6" />

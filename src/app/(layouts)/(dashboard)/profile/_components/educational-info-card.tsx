@@ -36,10 +36,12 @@ const EducationalInfoCard = ({ educations }: EducationalInfoCardrops) => {
                             : education.degree?.degreeName ||
                               education.level.levelName}
                       </h4>
+
                       <div className="space-y-1.5 pl-1">
                         <p className="flex items-center gap-2 text-sm font-semibold xl:text-base">
                           <Book className="text-dark-blue-700/80 size-4 xl:size-5" />
-                          {education.majorGroup.groupName}
+                          {education?.subjectName}
+                          {education?.majorGroup?.groupName}
                         </p>
                         <p className="flex items-start gap-2 text-sm font-semibold xl:items-center xl:text-base">
                           <School className="text-dark-blue-700/80 size-4 xl:size-5" />

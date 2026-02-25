@@ -13,6 +13,7 @@ export interface CandidateAchievement {
   createdAt: string;
   updatedAt: string;
   documents: TAchievementDocument[];
+  achievementId: string;
 }
 
 export type TAchievementDocument = {

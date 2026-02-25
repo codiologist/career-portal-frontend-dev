@@ -167,7 +167,7 @@ export default function AchievementTrainingCard({
             type="button"
             variant="outline"
             size="sm"
-            className="border-red-600 text-sm font-semibold text-red-600 hover:bg-red-600 hover:text-white"
+            className="border-red-600 text-sm font-semibold text-red-600! hover:bg-red-600 focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
             onClick={onRemove}
           >
             <Trash2 className="mr-1 h-4 w-4" />

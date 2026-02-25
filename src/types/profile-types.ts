@@ -5,6 +5,7 @@ import { TUserAddress } from "./address-types";
 import { TUserDocument } from "./document-types";
 import { TCandidateEducation } from "./education-types";
 import { CandidateExperiences } from "./experience-types";
+import { TProfileProgress } from "./profile-progress-types";
 import { CandidateReferences } from "./reference-types";
 
 export interface TGetMyProfileResponse {
@@ -31,6 +32,7 @@ export interface TUserData {
   candidateAchievements: CandidateAchievement[]; // ✅ FIXED
   candidateEducations: TCandidateEducation[]; // ✅ FIXED
   addresses: TUserAddress[];
+  profileProgress: TProfileProgress;
 }
 
 /* ---------- Profile Object ---------- */

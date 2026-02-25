@@ -12,6 +12,7 @@ export type SidebarSubMenuItem = {
   menu_name: string;
   href: string;
   icon?: ComponentType<SVGProps<SVGSVGElement>>;
+  score?: number;
 };
 
 export type SidebarNavigationItem = {
@@ -62,31 +63,37 @@ export const sidebarNavigationItems = [
         menu_name: "Personal Info",
         href: "/update-profile/personal-information",
         icon: LiaUserTieSolid,
+        score: 20,
       },
       {
         menu_name: "Address Info",
         href: "/update-profile/address-information",
         icon: icons.MapPin,
+        score: 10,
       },
       {
         menu_name: "Experience Info",
         href: "/update-profile/experience-information",
         icon: LiaBriefcaseSolid,
+        score: 10,
       },
       {
         menu_name: "Educational Info",
         href: "/update-profile/education-information",
         icon: icons.GraduationCap,
+        score: 10,
       },
       {
         menu_name: "Achievements & Training",
         href: "/update-profile/achievement-training-information",
         icon: icons.Award,
+        score: 10,
       },
       {
         menu_name: "References",
         href: "/update-profile/reference-information",
         icon: icons.Users,
+        score: 10,
       },
       {
         menu_name: "Upload Documents",

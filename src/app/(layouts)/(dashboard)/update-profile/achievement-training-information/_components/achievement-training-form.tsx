@@ -48,14 +48,11 @@ export default function AchievementTrainingForm() {
             organizationName: item.organizationName ?? "",
             url: item.url ?? "",
             location: item.location ?? "",
-            // API returns year as a number; the form expects a string
             year: item.year != null ? String(item.year) : "",
             description: item.description ?? "",
-            // No File object for existing records; keep certificate undefined
             certificate: undefined,
-            // Store the path of the first associated document so the card can
-            // show a preview and the schema skips the "file required" check
             existingCertificateUrl: item.documents?.[0]?.path ?? undefined,
+            achievementId: item.id ?? "",
           }))
         : [{ ...defaultAchievement }];
 
@@ -76,15 +73,18 @@ export default function AchievementTrainingForm() {
         location: achievement.location,
         year: Number(achievement.year),
         description: achievement.description,
-        // Let the backend know whether an existing document should be kept
         existingCertificateUrl: achievement.existingCertificateUrl ?? null,
+        achievementId: achievement.achievementId ?? "",
       }));
 
-      // Append newly selected certificate files using the same "files" key.
-      // Entries that kept their existing document will not append anything here.
+      // ✅ Index mismatch fix: প্রতিটি achievement-এর জন্য index অনুযায়ী file append করো।
+      // নতুন file না থাকলে empty Blob পাঠাও যাতে backend-এ files[i] সঠিক থাকে।
       data.achievements.forEach((achievement) => {
         if (achievement.certificate instanceof File) {
           formData.append("achievement", achievement.certificate);
+        } else {
+          // placeholder হিসেবে empty blob পাঠাও → backend files[i] index ঠিক রাখতে
+          formData.append("achievement", new Blob([]), "");
         }
       });
 
@@ -96,12 +96,13 @@ export default function AchievementTrainingForm() {
         },
       });
 
+      const isUpdate = data.achievements.some((a) => !!a.achievementId);
       toast.success(
-        `${user?.data?.candidateAchievements.length !== 0 ? "Updated" : "Created"} achievement information successfully.`,
+        `Achievement information ${isUpdate ? "updated" : "created"} successfully.`,
       );
     } catch (error) {
       console.error("Submission error:", error);
-      toast.error("Upload failed.");
+      toast.error("Failed to save achievement information. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
