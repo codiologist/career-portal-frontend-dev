@@ -109,13 +109,11 @@ export type TUserAddress = {
 };
 
 // ─── Merged List Types ────────────────────────────────────────────────────────
-// Upazila interface এ type: "UPAZILA" | "CITY_CORPORATION" আগে থেকেই আছে।
-// CityCorporation এ নেই — তাই merged list এর জন্য type যোগ করি।
-export type MergedUpazila =
+
+export type MergedUpazilaCityCorporation =
   | Upazila
   | (CityCorporation & { type: "CITY_CORPORATION" });
 
-// Union ও Municipality তে type নেই — তাই intersection দরকার।
 export type MergedUnionMunicipality =
   | (Union & { type: "UNION" })
   | (Municipality & { type: "MUNICIPALITY" });
@@ -145,7 +143,7 @@ export interface FetchParams {
 export interface DropdownState {
   divisions: Division[];
   districts: District[];
-  upazilas: MergedUpazila[];
+  upazilas: MergedUpazilaCityCorporation[];
   policeStations: PoliceStation[];
   postOffices: PostOffice[];
   unionsMunicipalities: MergedUnionMunicipality[];

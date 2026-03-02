@@ -73,6 +73,10 @@ export default function EducationCard({
     ? ["Secondary", "Higher Secondary"].includes(selectedLevel.levelName)
     : false;
 
+  const isPhD = selectedLevel
+    ? ["PhD"].includes(selectedLevel.levelName)
+    : false;
+
   const selectedResultType = educationMeta?.resultTypes.find(
     (r) => r.id === watchedResultTypeId,
   );
@@ -283,15 +287,18 @@ export default function EducationCard({
         />
 
         {/* Degree Name */}
-        <SelectInput
-          form={form}
-          name={`educations.${index}.degreeNameId`}
-          label="Degree Name"
-          placeholder={loadingDegree ? "Loading…" : "Select degree"}
-          options={degreeOptions}
-          required
-          disabled={!watchedLevelId || loadingDegree}
-        />
+
+        {!isPhD && (
+          <SelectInput
+            form={form}
+            name={`educations.${index}.degreeNameId`}
+            label="Degree Name"
+            placeholder={loadingDegree ? "Loading…" : "Select degree"}
+            options={degreeOptions}
+            required
+            disabled={!watchedLevelId || loadingDegree}
+          />
+        )}
 
         {/* Education Board — only shown for Secondary / Higher Secondary */}
         {isSSCorHSC && (

@@ -9,7 +9,7 @@ import type {
   DropdownState,
   FetchParams,
   MergedUnionMunicipality,
-  MergedUpazila,
+  MergedUpazilaCityCorporation,
   Municipality,
   PoliceStation,
   PostOffice,
@@ -22,16 +22,16 @@ import type { UseFormReturn } from "react-hook-form";
 type Action =
   | { type: "SET_DIVISIONS"; payload: Division[] }
   | { type: "SET_DISTRICTS"; payload: District[] }
-  | { type: "SET_UPAZILAS"; payload: MergedUpazila[] }
+  | { type: "SET_UPAZILAS"; payload: MergedUpazilaCityCorporation[] }
   | { type: "SET_POLICE_STATIONS"; payload: PoliceStation[] }
   | { type: "SET_POST_OFFICES"; payload: PostOffice[] }
   | { type: "SET_UNIONS_MUNICIPALITIES"; payload: MergedUnionMunicipality[] }
   | { type: "SET_LOADING"; key: keyof DropdownState["loading"]; value: boolean }
   | {
       type: "SET_DISTRICT_DATA";
-      upazilas: MergedUpazila[];
+      upazilas: MergedUpazilaCityCorporation[];
       policeStations: PoliceStation[];
-      postOffices: PostOffice[]; // একই API call এ আসে, আলাদা action লাগে না
+      postOffices: PostOffice[];
     };
 
 const initialState: DropdownState = {
@@ -102,16 +102,11 @@ const sortBy = <T>(arr: T[], key: keyof T): T[] =>
     }),
   );
 
-/**
- * District select হলে backend একটাই call এ সব দেয়:
- *   upazilas + cityCorporations + policeStations + postOffices
- * তাই এখানে একটাই fetchDropdown call।
- */
 const fetchDistrictData = async (
   divisionId: string,
   districtId: string,
 ): Promise<{
-  mergedUpazilas: MergedUpazila[];
+  MergedUpazilaCityCorporations: MergedUpazilaCityCorporation[];
   sortedPolice: PoliceStation[];
   sortedPostOffices: PostOffice[];
 }> => {
@@ -127,7 +122,7 @@ const fetchDistrictData = async (
   const rawPoliceStations: PoliceStation[] = data?.policeStations ?? [];
   const rawPostOffices: PostOffice[] = data?.postOffices ?? [];
 
-  const mergedUpazilas: MergedUpazila[] = [
+  const MergedUpazilaCityCorporations: MergedUpazilaCityCorporation[] = [
     ...sortBy(rawUpazilas, "name").map((u) => ({
       ...u,
       type: "UPAZILA" as const,
@@ -141,7 +136,7 @@ const fetchDistrictData = async (
   const sortedPolice: PoliceStation[] = sortBy(rawPoliceStations, "name");
   const sortedPostOffices: PostOffice[] = sortBy(rawPostOffices, "postOffice");
 
-  return { mergedUpazilas, sortedPolice, sortedPostOffices };
+  return { MergedUpazilaCityCorporations, sortedPolice, sortedPostOffices };
 };
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -208,17 +203,20 @@ export const useAddressDropdown = (
         dispatch({ type: "SET_LOADING", key: "district", value: false });
       }
 
-      // Step 3: Upazilas + Police + PostOffices — একটাই API call
+      // Step 3: Upazilas + Police + PostOffices — API call
       dispatch({ type: "SET_LOADING", key: "upazila", value: true });
       dispatch({ type: "SET_LOADING", key: "policeStation", value: true });
       dispatch({ type: "SET_LOADING", key: "postOffice", value: true });
       try {
-        const { mergedUpazilas, sortedPolice, sortedPostOffices } =
-          await fetchDistrictData(divisionId!, districtId);
+        const {
+          MergedUpazilaCityCorporations,
+          sortedPolice,
+          sortedPostOffices,
+        } = await fetchDistrictData(divisionId!, districtId);
 
         dispatch({
           type: "SET_DISTRICT_DATA",
-          upazilas: mergedUpazilas,
+          upazilas: MergedUpazilaCityCorporations,
           policeStations: sortedPolice,
           postOffices: sortedPostOffices,
         });
@@ -226,7 +224,7 @@ export const useAddressDropdown = (
         const upazilaCityCorpId = upazilaId || cityCorporationId || "";
         if (upazilaCityCorpId) {
           setField("upazilaCityCorpId", upazilaCityCorpId);
-          const found = mergedUpazilas.find(
+          const found = MergedUpazilaCityCorporations.find(
             (u) => String(u.id) === String(upazilaCityCorpId),
           );
           if (found?.type === "UPAZILA") {
@@ -245,7 +243,7 @@ export const useAddressDropdown = (
         dispatch({ type: "SET_LOADING", key: "postOffice", value: false });
       }
 
-      // Step 4: Unions + Municipalities (শুধু real upazilaId থাকলে)
+      // Step 4: Unions + Municipalities
       if (!upazilaId) return;
       const unionMunicipalityId = unionParishadId || municipalityId || "";
 
@@ -342,11 +340,14 @@ export const useAddressDropdown = (
       dispatch({ type: "SET_LOADING", key: "policeStation", value: true });
       dispatch({ type: "SET_LOADING", key: "postOffice", value: true });
       try {
-        const { mergedUpazilas, sortedPolice, sortedPostOffices } =
-          await fetchDistrictData(watchedDivisionId, watchedDistrictId);
+        const {
+          MergedUpazilaCityCorporations,
+          sortedPolice,
+          sortedPostOffices,
+        } = await fetchDistrictData(watchedDivisionId, watchedDistrictId);
         dispatch({
           type: "SET_DISTRICT_DATA",
-          upazilas: mergedUpazilas,
+          upazilas: MergedUpazilaCityCorporations,
           policeStations: sortedPolice,
           postOffices: sortedPostOffices,
         });

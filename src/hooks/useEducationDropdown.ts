@@ -53,93 +53,113 @@ export const useEducationDropdown = (
 
   const prefillDone = useRef(false);
 
+  // ───────────────────────── LOAD LEVELS (সবসময় একবার) ─────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      setLoadingLevel(true);
+      try {
+        const data = await fetchEducationDropdown({});
+        if (!cancelled) setLevels(data?.data || []);
+      } finally {
+        if (!cancelled) setLoadingLevel(false);
+      }
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // ───────────────────────── PREFILL FLOW ─────────────────────────
   useEffect(() => {
     if (!initialValues?.levelId || !form || !prefix) return;
     if (prefillDone.current) return;
     prefillDone.current = true;
 
+    let cancelled = false;
+
     const run = async () => {
       const { levelId, degreeId } = initialValues;
 
-      // Step 1: Load Levels
-      setLoadingLevel(true);
-      try {
-        const data = await fetchEducationDropdown({});
-        setLevels(data?.data || []);
-        form.setValue(`${prefix}.levelId`, levelId, { shouldDirty: true });
-      } finally {
-        setLoadingLevel(false);
-      }
+      // Level setValue — levels লোড Effect 1 থেকেই হচ্ছে
+      form.setValue(`${prefix}.levelId`, levelId, { shouldDirty: true });
 
       if (!degreeId) return;
 
-      // Step 2: Load Degrees
+      // Degrees এবং Meta একসাথে parallel fetch
       setLoadingDegree(true);
-      try {
-        const data = await fetchEducationDropdown({ levelId });
-        setDegrees(data?.data || []);
-        form.setValue(`${prefix}.degreeId`, degreeId, { shouldDirty: true });
-      } finally {
-        setLoadingDegree(false);
-      }
-
-      // Step 3: Load Meta
       setLoadingMeta(true);
+
       try {
-        const data = await fetchEducationDropdown({ degreeId });
-        setEducationMeta(data?.data || null);
+        const [degreesData, metaData] = await Promise.all([
+          fetchEducationDropdown({ levelId }),
+          fetchEducationDropdown({ degreeId }),
+        ]);
+
+        if (cancelled) return;
+
+        setDegrees(degreesData?.data || []);
+        form.setValue(`${prefix}.degreeId`, degreeId, { shouldDirty: true });
+        setEducationMeta(metaData?.data || null);
       } finally {
-        setLoadingMeta(false);
+        if (!cancelled) {
+          setLoadingDegree(false);
+          setLoadingMeta(false);
+        }
       }
     };
 
     run();
-  }, [initialValues]);
 
-  // ───────────────────────── LOAD LEVELS ─────────────────────────
-  useEffect(() => {
-    if (initialValues?.levelId) return;
-
-    const load = async () => {
-      setLoadingLevel(true);
-      try {
-        const data = await fetchEducationDropdown({});
-        setLevels(data?.data || []);
-      } finally {
-        setLoadingLevel(false);
-      }
+    return () => {
+      cancelled = true;
     };
+  }, [initialValues]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    load();
-  }, []);
-
-  // ───────────────────────── LOAD DEGREES ─────────────────────────
+  // ───────────────────────── LOAD DEGREES (user interaction) ─────────────────────────
   useEffect(() => {
     if (!watchedLevelId) {
       setDegrees([]);
       return;
     }
 
+    // Prefill flow ইতিমধ্যে handle করেছে, skip করো
+    if (prefillDone.current) return;
+
+    let cancelled = false;
+
     const load = async () => {
       setLoadingDegree(true);
       try {
         const data = await fetchEducationDropdown({ levelId: watchedLevelId });
-        setDegrees(data?.data || []);
+        if (!cancelled) setDegrees(data?.data || []);
       } finally {
-        setLoadingDegree(false);
+        if (!cancelled) setLoadingDegree(false);
       }
     };
 
     load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [watchedLevelId]);
 
-  // ───────────────────────── LOAD META ─────────────────────────
+  // ───────────────────────── LOAD META (user interaction) ─────────────────────────
   useEffect(() => {
     if (!watchedDegreeId) {
       setEducationMeta(null);
       return;
     }
+
+    // Prefill flow ইতিমধ্যে handle করেছে, skip করো
+    if (prefillDone.current) return;
+
+    let cancelled = false;
 
     const load = async () => {
       setLoadingMeta(true);
@@ -147,13 +167,17 @@ export const useEducationDropdown = (
         const data = await fetchEducationDropdown({
           degreeId: watchedDegreeId,
         });
-        setEducationMeta(data?.data || null);
+        if (!cancelled) setEducationMeta(data?.data || null);
       } finally {
-        setLoadingMeta(false);
+        if (!cancelled) setLoadingMeta(false);
       }
     };
 
     load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [watchedDegreeId]);
 
   return {
